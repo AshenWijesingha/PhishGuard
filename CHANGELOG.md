@@ -1,0 +1,60 @@
+# Changelog
+
+All notable changes to PhishGuard are documented here.
+Format: [Keep a Changelog](https://keepachangelog.com/), versioning: SemVer.
+
+## [1.0.0] — 2026-06-12
+
+### Added — MVP (all must-have features M1–M17)
+
+**Detection & analysis**
+- Real-time URL analysis on navigation: homoglyph/punycode (IDN) detection with an RFC 3492
+  decoder and confusable-character skeletons, typosquat Levenshtein distance against a bundled
+  brand list, brand-in-subdomain nesting, excessive subdomain depth, IP-literal hosts
+  (dotted/hex/decimal), userinfo-in-URL tricks, suspicious TLDs, URL-shortener flagging (M1).
+- Sensitive-form detection via input types, `autocomplete` attributes, and name/label/placeholder
+  heuristics (password, payment card, CVV, OTP, SSN, seed phrase), including dynamically
+  injected forms through a debounced MutationObserver (M2).
+- Capture-phase form-submission interception before any network request, covering native
+  submits, `form.submit()` (rewritten to `requestSubmit()` in the MAIN world), and
+  credential-shaped `fetch`/XHR POSTs held for a verdict (M3).
+- Effective form-destination resolution (empty/relative actions, `formaction` overrides) with
+  cross-origin mismatch, HTTPS→HTTP downgrade, action-to-IP, and action-to-shortener checks (M4).
+- Google Safe Browsing Update API v4 adapter with local hash-prefix cache, k-anonymity
+  full-hash lookups, positive-result TTL caching, and full offline tolerance (M5).
+- Gmail and Outlook Web email inspection: display-name vs. address mismatch, reply-to
+  divergence, link-text vs. href mismatch with in-message link highlighting, risky attachment
+  names (metadata only) (M6).
+- On-device content heuristics: urgency/pressure language, credential solicitation, payment
+  lures, brand-keyword + off-brand-domain pairing (M7).
+- Weighted risk-scoring engine with four verdict tiers and configurable weights/thresholds (M8).
+
+**Protection & response**
+- declarativeNetRequest dynamic rules redirect blocklisted navigations to a full-page
+  interstitial before render; override requires a typed phrase and is logged (M9).
+- Blocking pre-submit modal for High Risk submissions listing every triggered signal in plain
+  language; cancel is the default focused action; Confirmed Malicious requires typed
+  confirmation (M10).
+- Local allowlist ("this is a false positive") and blocklist management from popup,
+  banner, and dashboard (M11).
+
+**Recording & visibility**
+- Append-only audit log in IndexedDB covering detections, blocked submissions/navigations,
+  overrides, TI hits, flagged visits, and reports (M12).
+- SHA-256 hash-chained records for tamper evidence; chain verification in the dashboard;
+  optional hashed-domain privacy mode; configurable retention (M13).
+- Dashboard with search/filtering, weekly stats, integrity check, and CSV/JSON export (M14).
+- Toolbar badge reflecting the current-page verdict; popup with verdict, signal breakdown,
+  report/allowlist/blocklist actions (M15).
+
+**Platform & quality**
+- Manifest V3, TypeScript (strict), esbuild bundling, minimal permissions, strict CSP, no
+  remote code, all analysis on-device, no telemetry (M16).
+- 52 unit/integration tests: URL heuristics, scoring engine, hash-chain integrity
+  (tamper/delete/forge), Safe Browsing canonicalization & caching, sensitive-form detection
+  against benign and simulated-phishing HTML fixtures (M17).
+
+### Planned (post-MVP)
+- PhishTank / OpenPhish / URLhaus / enterprise REST threat-feed adapters (N1), RDAP domain age
+  (N2), Yahoo Mail adapter (N5), password-reuse guard (N10), micro-education cards (N14),
+  Firefox build target (N22). See README roadmap and BROWSER_COMPAT.md.

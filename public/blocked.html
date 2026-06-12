@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PhishGuard — Site blocked</title>
+  <link rel="stylesheet" href="ui.css" />
+</head>
+<body class="interstitial">
+  <main class="inter-card" role="alertdialog" aria-label="Site blocked by PhishGuard">
+    <div class="inter-head">⛔ Dangerous site blocked</div>
+    <div class="inter-body">
+      <p>PhishGuard stopped you from visiting <strong id="blocked-domain">this site</strong> because it is on your blocklist of confirmed-malicious sites.</p>
+      <p>Phishing sites imitate real services to steal passwords, payment details, and one-time codes. If you were sent here by an email or message, that message is almost certainly a scam.</p>
+    </div>
+    <div class="inter-actions">
+      <button id="btn-back" class="primary" type="button">Take me back to safety</button>
+      <details>
+        <summary>Advanced</summary>
+        <p>If you are certain this site is safe, type <code>visit unsafe site</code> to continue. This will be recorded in your audit log.</p>
+        <input type="text" id="confirm-input" aria-label="Override confirmation phrase" />
+        <button id="btn-proceed" type="button" disabled>Remove from blocklist and continue</button>
+      </details>
+    </div>
+  </main>
+  <script src="blocked.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PhishGuard — Dashboard</title>
+  <link rel="stylesheet" href="ui.css" />
+</head>
+<body class="dashboard">
+  <header class="dash-head">
+    <span class="logo" aria-hidden="true">🛡</span>
+    <h1>PhishGuard Dashboard</h1>
+    <nav role="tablist" aria-label="Dashboard sections">
+      <button role="tab" data-tab="log" aria-selected="true">Audit log</button>
+      <button role="tab" data-tab="lists" aria-selected="false">Allow / block lists</button>
+      <button role="tab" data-tab="settings" aria-selected="false">Settings</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="tab-log" role="tabpanel">
+      <div class="stats" id="stats" aria-label="Statistics"></div>
+      <div class="toolbar">
+        <input id="log-search" type="search" placeholder="Search domain, URL, or signal…" aria-label="Search audit log" />
+        <select id="log-type" aria-label="Filter by event type">
+          <option value="">All event types</option>
+          <option value="detection">Detection</option>
+          <option value="blocked_submission">Blocked submission</option>
+          <option value="blocked_navigation">Blocked navigation</option>
+          <option value="user_override">User override</option>
+          <option value="ti_hit">Threat-intel hit</option>
+          <option value="flagged_visit">Flagged visit</option>
+          <option value="report_phishing">Phishing report</option>
+        </select>
+        <button id="btn-verify" type="button">Verify log integrity</button>
+        <button id="btn-export-csv" type="button">Export CSV</button>
+        <button id="btn-export-json" type="button">Export JSON</button>
+      </div>
+      <div id="verify-result" role="status"></div>
+      <table id="log-table">
+        <thead>
+          <tr><th>Time</th><th>Event</th><th>Domain</th><th>Verdict</th><th>Score</th><th>Decision</th><th>Signals</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="tab-lists" role="tabpanel" hidden>
+      <div class="lists-grid">
+        <div>
+          <h2>Allowlist (trusted sites)</h2>
+          <form id="allow-form"><input type="text" id="allow-input" placeholder="example.com" aria-label="Domain to allow" /><button type="submit">Add</button></form>
+          <ul id="allow-list"></ul>
+        </div>
+        <div>
+          <h2>Blocklist (always blocked)</h2>
+          <form id="block-form"><input type="text" id="block-input" placeholder="evil.example" aria-label="Domain to block" /><button type="submit">Add</button></form>
+          <ul id="block-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-settings" role="tabpanel" hidden>
+      <h2>Detection sensitivity</h2>
+      <label>Suspicious threshold <input type="number" id="th-suspicious" min="1" /></label>
+      <label>High-risk threshold <input type="number" id="th-high" min="1" /></label>
+      <h2>Threat intelligence</h2>
+      <label>Google Safe Browsing API key
+        <input type="password" id="gsb-key" autocomplete="off" placeholder="Optional — enables the Safe Browsing feed" />
+      </label>
+      <h2>Privacy</h2>
+      <label class="check"><input type="checkbox" id="privacy-hash" /> Store only hashed domains in the audit log</label>
+      <label class="check"><input type="checkbox" id="email-inspection" /> Inspect webmail messages (Gmail / Outlook)</label>
+      <label class="check"><input type="checkbox" id="suspicious-banner" /> Show banner on suspicious pages</label>
+      <label>Audit-log retention (days, 0 = forever) <input type="number" id="retention" min="0" /></label>
+      <button id="btn-save-settings" type="button" class="primary">Save settings</button>
+      <div id="settings-saved" role="status"></div>
+    </section>
+  </main>
+  <script src="dashboard.js"></script>
+</body>
+</html>
