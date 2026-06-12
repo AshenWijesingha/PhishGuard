@@ -9,6 +9,7 @@
  */
 import type { Signal, Verdict } from '../core/scoring';
 import { VERDICT_LABEL } from '../core/scoring';
+import { EDUCATION } from '../core/education';
 
 const Z = '2147483647';
 
@@ -39,6 +40,12 @@ function makeHost(id: string): { host: HTMLElement; root: ShadowRoot } {
     input[type=text] { font-size: 14px; padding: 10px 12px; border: 1px solid #c9ced6; border-radius: 8px; width: 100%; }
     .confirm-row { display: none; flex-direction: column; gap: 8px; }
     .confirm-row.visible { display: flex; }
+    details.learn { margin-top: 6px; font-size: 13px; }
+    details.learn summary { cursor: pointer; color: #1b5ea8; font-weight: 600; }
+    .edu-card { background: #f4f5f7; border-radius: 8px; padding: 10px 12px; margin-top: 8px; }
+    .edu-card h4 { margin: 0 0 4px; font-size: 13px; }
+    .edu-card p { margin: 0 0 4px; }
+    .edu-tip { color: #1b5ea8; font-weight: 600; }
     .banner { position: fixed; top: 0; left: 0; right: 0; background: #fff7e6; color: #5c4500; border-bottom: 2px solid #f5a623; padding: 10px 16px; font-size: 13px; display: flex; gap: 12px; align-items: center; }
     .banner button { padding: 5px 10px; font-size: 12px; }
     .overlay { position: fixed; inset: 0; background: #7a0c0c; color: #fff; display: flex; align-items: center; justify-content: center; }
@@ -102,6 +109,24 @@ export function showBlockingModal(opts: ModalOptions): Promise<boolean> {
     const reasons = el('ul', 'reasons');
     for (const s of opts.signals) reasons.appendChild(el('li', undefined, s.reason));
     body.append(lead, reasons);
+
+    // Just-in-time micro-education (N14): explain the techniques in play.
+    const cards = [...new Set(opts.signals.map((s) => s.id))]
+      .map((id) => EDUCATION[id])
+      .filter((c): c is NonNullable<typeof c> => c !== undefined)
+      .slice(0, 3);
+    if (cards.length > 0) {
+      const learn = el('details', 'learn');
+      learn.appendChild(el('summary', undefined, 'How does this scam work?'));
+      for (const card of cards) {
+        const div = el('div', 'edu-card');
+        div.appendChild(el('h4', undefined, card.title));
+        div.appendChild(el('p', undefined, card.body));
+        div.appendChild(el('p', 'edu-tip', '✓ ' + card.tip));
+        learn.appendChild(div);
+      }
+      body.appendChild(learn);
+    }
 
     const foot = el('div', 'card-foot');
     const cancel = el('button', 'primary', 'Go back — don’t send (recommended)');

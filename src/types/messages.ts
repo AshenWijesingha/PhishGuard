@@ -27,6 +27,12 @@ export interface FormSubmitInfo {
   sensitiveFields: string[];
   /** How the submit was initiated: native | js-submit | fetch | xhr. */
   via: string;
+  /**
+   * SHA-256 hex digest of the password being submitted (never the
+   * plaintext), for the password-reuse guard. Only set when the guard is
+   * enabled and a password field is present.
+   */
+  pwdDigest?: string;
 }
 
 export type Request =
@@ -44,7 +50,8 @@ export type Request =
   | { kind: 'removeFromBlocklist'; domain: string }
   | { kind: 'getSettings' }
   | { kind: 'updateSettings'; settings: Partial<Settings> }
-  | { kind: 'reportPhishing'; url: string; signals: Signal[] };
+  | { kind: 'reportPhishing'; url: string; signals: Signal[] }
+  | { kind: 'recordPasswordUse'; pwdDigest: string; origin: string };
 
 export interface AuditFilter {
   text?: string;

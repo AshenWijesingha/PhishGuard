@@ -6,6 +6,7 @@
 import { sendRequest, type Response } from '../../types/messages';
 import type { AuditRecord } from '../../storage/audit-log';
 import { toCsv } from '../../storage/audit-log';
+import { EDUCATION } from '../../core/education';
 
 function $(id: string): HTMLElement {
   return document.getElementById(id)!;
@@ -175,6 +176,15 @@ async function loadSettings(): Promise<void> {
   ($('th-suspicious') as HTMLInputElement).value = String(s.thresholds.suspicious);
   ($('th-high') as HTMLInputElement).value = String(s.thresholds.highRisk);
   ($('gsb-key') as HTMLInputElement).value = s.safeBrowsingApiKey;
+  ($('feed-phishtank') as HTMLInputElement).checked = s.feeds.phishtank.enabled;
+  ($('phishtank-key') as HTMLInputElement).value = s.feeds.phishtank.apiKey;
+  ($('feed-openphish') as HTMLInputElement).checked = s.feeds.openphish.enabled;
+  ($('feed-urlhaus') as HTMLInputElement).checked = s.feeds.urlhaus.enabled;
+  ($('feed-custom') as HTMLInputElement).checked = s.feeds.custom.enabled;
+  ($('custom-url') as HTMLInputElement).value = s.feeds.custom.url;
+  ($('custom-key') as HTMLInputElement).value = s.feeds.custom.apiKey;
+  ($('rdap-age') as HTMLInputElement).checked = s.rdapDomainAge;
+  ($('pwd-guard') as HTMLInputElement).checked = s.passwordReuseGuard;
   ($('privacy-hash') as HTMLInputElement).checked = s.privacyHashDomains;
   ($('email-inspection') as HTMLInputElement).checked = s.emailInspection;
   ($('suspicious-banner') as HTMLInputElement).checked = s.suspiciousBanner;
@@ -191,6 +201,22 @@ $('btn-save-settings').addEventListener('click', async () => {
         malicious: 1000,
       },
       safeBrowsingApiKey: ($('gsb-key') as HTMLInputElement).value.trim(),
+      feeds: {
+        phishtank: {
+          enabled: ($('feed-phishtank') as HTMLInputElement).checked,
+          apiKey: ($('phishtank-key') as HTMLInputElement).value.trim(),
+          url: '',
+        },
+        openphish: { enabled: ($('feed-openphish') as HTMLInputElement).checked, apiKey: '', url: '' },
+        urlhaus: { enabled: ($('feed-urlhaus') as HTMLInputElement).checked, apiKey: '', url: '' },
+        custom: {
+          enabled: ($('feed-custom') as HTMLInputElement).checked,
+          apiKey: ($('custom-key') as HTMLInputElement).value.trim(),
+          url: ($('custom-url') as HTMLInputElement).value.trim(),
+        },
+      },
+      rdapDomainAge: ($('rdap-age') as HTMLInputElement).checked,
+      passwordReuseGuard: ($('pwd-guard') as HTMLInputElement).checked,
       privacyHashDomains: ($('privacy-hash') as HTMLInputElement).checked,
       emailInspection: ($('email-inspection') as HTMLInputElement).checked,
       suspiciousBanner: ($('suspicious-banner') as HTMLInputElement).checked,
@@ -201,6 +227,27 @@ $('btn-save-settings').addEventListener('click', async () => {
   setTimeout(() => ($('settings-saved').textContent = ''), 2500);
 });
 
+// ---------------------------------------------------------------------------
+// Learn library (N14)
+
+function renderLearnLibrary(): void {
+  const box = $('learn-cards');
+  for (const card of Object.values(EDUCATION)) {
+    const div = document.createElement('div');
+    div.className = 'edu-card';
+    const h3 = document.createElement('h3');
+    h3.textContent = card.title;
+    const body = document.createElement('p');
+    body.textContent = card.body;
+    const tip = document.createElement('p');
+    tip.className = 'edu-tip';
+    tip.textContent = '✓ ' + card.tip;
+    div.append(h3, body, tip);
+    box.appendChild(div);
+  }
+}
+
 void loadLog();
 void loadLists();
 void loadSettings();
+renderLearnLibrary();

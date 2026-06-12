@@ -10,7 +10,8 @@ import { analyzeUrl, parseHost } from '../core/url-heuristics';
 import { BRANDS } from '../core/brands';
 import { analyzeContent } from '../core/content-heuristics';
 import { scoreSignals, type Signal, type Verdict, type VerdictResult } from '../core/scoring';
-import { checkThreatIntel, refreshThreatIntel } from '../intel';
+import { checkThreatIntel, getDomainAgeDays, refreshThreatIntel } from '../intel';
+import { isPasswordReused, recordPasswordUse } from '../storage/password-reuse';
 import {
   appendAudit, getAllRecords, pruneOldRecords, verifyChain, type AuditEvent,
 } from '../storage/audit-log';
@@ -100,6 +101,10 @@ async function computeUrlVerdict(url: string, pageSignals?: PageSignals): Promis
     }
   }
 
+  // Domain age (N2): only consulted when the page already shows suspicion,
+  // so ordinary browsing is never revealed to RDAP servers.
+  await maybeAddDomainAgeSignal(url, signals, settings.rdapDomainAge);
+
   const ti = await checkThreatIntel(url);
   if (ti) {
     signals.push({
@@ -124,6 +129,26 @@ function safeHostname(url: string): string {
     return new URL(url).hostname;
   } catch {
     return url.slice(0, 100);
+  }
+}
+
+/** Adds a young-domain signal (N2) when warranted; silent on any failure. */
+async function maybeAddDomainAgeSignal(url: string, signals: Signal[], enabled: boolean): Promise<void> {
+  if (!enabled || signals.length === 0) return;
+  if (signals.some((s) => s.id === 'local_allowlist_hit' || s.id === 'young_domain')) return;
+  const host = parseHost(safeHostname(url));
+  if (host.isIp || !host.registrableDomain) return;
+  try {
+    const age = await getDomainAgeDays(host.registrableDomain);
+    if (age !== null && age < 30) {
+      signals.push({
+        id: 'young_domain',
+        reason: `The domain ${host.registrableDomain} was registered only ${age === 0 ? 'today' : `${age} day${age === 1 ? '' : 's'} ago`} — most phishing domains are days old.`,
+        detail: `${age} days`,
+      });
+    }
+  } catch {
+    /* RDAP unavailable: no signal */
   }
 }
 
@@ -193,6 +218,23 @@ async function handleFormSubmit(info: FormSubmitInfo): Promise<VerdictResult> {
       reason: 'The form submits to a link-shortener address, hiding where your data actually goes.',
     });
   }
+
+  // Password-reuse guard (N10): the digest is salted+hashed before storage.
+  if (info.pwdDigest && settings.passwordReuseGuard && pageOrigin) {
+    try {
+      if (await isPasswordReused(info.pwdDigest, pageOrigin)) {
+        signals.push({
+          id: 'password_reuse',
+          reason: 'You have used this password on a different site before — if this page is fake, that other account is exposed too.',
+        });
+      }
+    } catch {
+      /* guard must never break submission */
+    }
+  }
+
+  // Fresh action domain (N2): consulted only when other suspicion exists.
+  await maybeAddDomainAgeSignal(info.actionUrl, signals, settings.rdapDomainAge);
 
   if (await isBlocklisted(info.actionUrl)) {
     signals.push({ id: 'local_blocklist_hit', reason: 'The destination is on your local blocklist.' });
@@ -418,6 +460,11 @@ chrome.runtime.onMessage.addListener((msg: Request, sender, sendResponse: (r: Re
           userDecision: 'reported',
         });
         return { kind: 'ok' };
+      case 'recordPasswordUse': {
+        const settings = await getSettings();
+        if (settings.passwordReuseGuard) await recordPasswordUse(msg.pwdDigest, msg.origin);
+        return { kind: 'ok' };
+      }
     }
   })()
     .then(sendResponse)

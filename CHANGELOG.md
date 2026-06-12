@@ -3,6 +3,30 @@
 All notable changes to PhishGuard are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/), versioning: SemVer.
 
+## [1.1.0] — 2026-06-12
+
+### Added — post-MVP protection batch (N1, N2, N5, N10, N14) + CI
+
+- **Threat-intel adapters (N1):** PhishTank, OpenPhish, URLhaus, and a generic enterprise
+  adapter (MISP export / custom REST URL lists, optional Bearer token) behind the existing
+  pluggable interface. Feeds are opt-in, downloaded periodically, stored as truncated hashes,
+  and matched entirely on-device; failed refreshes keep the previous cache.
+- **Domain age (N2):** cached RDAP lookups (rdap.org) add a weighted "freshly registered
+  domain" signal for pages and form destinations that already show suspicion; 30-day positive
+  / 1-day negative caching; never consulted for signal-free browsing.
+- **Webmail coverage (N5):** Yahoo Mail adapter and a generic Roundcube/Zimbra adapter that
+  self-gates on recognizable webmail markup.
+- **Password-reuse guard (N10):** warns when a submitted password was previously used on a
+  different origin. Plaintext never leaves the page; storage holds salted hashes of both the
+  password digest and the origin.
+- **Micro-education (N14):** "How does this scam work?" cards for every detected technique in
+  the blocking modal, plus a Learn library tab in the dashboard.
+- **CI:** GitHub Actions workflow (typecheck → tests → build, uploads the load-unpacked
+  bundle as an artifact).
+- **Icons:** generated shield-with-checkmark artwork replaces the flat placeholder PNGs.
+- 18 new tests (70 total): feed parsing/matching/offline behaviour, RDAP caching, reuse-guard
+  semantics incl. storage opacity, education coverage.
+
 ## [1.0.0] — 2026-06-12
 
 ### Added — MVP (all must-have features M1–M17)

@@ -37,6 +37,10 @@ export type SignalId =
   | 'reply_to_divergence'
   | 'link_text_href_mismatch'
   | 'suspicious_attachment_name'
+  // Domain intelligence
+  | 'young_domain'
+  // Credential hygiene
+  | 'password_reuse'
   // Threat intel / lists
   | 'threat_intel_hit'
   | 'local_blocklist_hit'
@@ -77,6 +81,8 @@ export const DEFAULT_WEIGHTS: Record<SignalId, number> = {
   reply_to_divergence: 20,
   link_text_href_mismatch: 30,
   suspicious_attachment_name: 15,
+  young_domain: 20,
+  password_reuse: 25,
   threat_intel_hit: 1000,
   local_blocklist_hit: 1000,
   local_allowlist_hit: -1000,

@@ -18,8 +18,11 @@ explicitly export it.
 | Sensitive forms | Password, payment-card, OTP, SSN, and seed-phrase fields detected via input types, `autocomplete` attributes, and name/label heuristics — including dynamically injected forms (debounced MutationObserver) |
 | Submission interception | Capture-phase `submit` hook **before any network request**, plus MAIN-world instrumentation of `form.submit()`, `fetch()`, and `XMLHttpRequest` for credential-shaped POSTs |
 | Destination checks | Page-origin vs. effective action-origin mismatch, HTTPS→HTTP downgrade, action to raw IP or link shortener, `formaction` overrides |
-| Threat intel | Google Safe Browsing (Update API v4) with a **local hash-prefix cache** — full URLs are never sent anywhere; offline-tolerant |
-| Webmail inspection | Gmail and Outlook Web adapters: display-name vs. address mismatch, reply-to divergence, link-text vs. href mismatch with in-message highlighting, risky attachment names (names only — contents are never read) |
+| Threat intel | Google Safe Browsing (Update API v4) with a **local hash-prefix cache** — full URLs are never sent anywhere; plus opt-in **PhishTank / OpenPhish / URLhaus / generic enterprise** URL-list feeds, downloaded periodically and matched entirely on-device; offline-tolerant |
+| Domain age | Cached RDAP lookups flag freshly registered domains (< 30 days), consulted only for already-suspicious pages |
+| Webmail inspection | Gmail, Outlook Web, and Yahoo Mail adapters plus a generic Roundcube/Zimbra adapter: display-name vs. address mismatch, reply-to divergence, link-text vs. href mismatch with in-message highlighting, risky attachment names (names only — contents are never read) |
+| Password-reuse guard | Warns when a password you're submitting was previously used on a different origin — stored as salted hashes only, never plaintext |
+| Education | Just-in-time "How does this scam work?" cards in the blocking modal, plus a full techniques library in the dashboard |
 | Content heuristics | On-device urgency/pressure language, credential solicitation, payment/gift-card lures, brand keyword + off-brand domain pairing |
 | Risk scoring | Weighted signals → **Safe / Suspicious / High Risk / Confirmed Malicious**, with configurable weights and thresholds |
 | Protection | Hard-block interstitial for blocklisted domains (declarativeNetRequest, before page render); blocking pre-submit modal for High Risk (cancel is default); typed-phrase override for Confirmed Malicious |
@@ -138,11 +141,32 @@ prefix matches does PhishGuard call `fullHashes:find` — sending **hash prefixe
 (k-anonymity); the full URL is never transmitted. Without a key, or offline, the feed silently
 disables itself and heuristics continue to work.
 
-### Additional feeds (post-MVP roadmap)
+### URL-list feeds: PhishTank, OpenPhish, URLhaus, enterprise
 
-The `src/intel/adapter.ts` interface is pluggable. PhishTank, OpenPhish, URLhaus, and a generic
-enterprise REST/MISP adapter are planned (N1) — each with per-feed enable/disable and API-key
-configuration in the dashboard.
+All four are **disabled by default** (each one downloads a third-party list periodically) and
+toggled in Dashboard → Settings:
+
+- **PhishTank** — verified phishing URLs. Works without a key; register a PhishTank app key
+  for higher rate limits and paste it in settings.
+- **OpenPhish** — community feed (`feed.txt`), refreshed on the same 30-minute alarm.
+- **URLhaus** (abuse.ch) — active malware-distribution URLs.
+- **Enterprise / generic** — point it at any endpoint returning a URL list: plain text
+  (one URL per line, `#` comments allowed), a JSON array of strings, or a JSON array of
+  `{ "url": … }` objects (covers MISP exports and most SOC blocklist endpoints). An optional
+  API key is sent as a `Bearer` token.
+
+Privacy: feed contents are stored as truncated salted-free SHA-256 hashes and matched
+**locally** — no per-URL queries are ever sent to these providers. Entries whose path is `/`
+block the whole host; full-path entries match exactly. A failed refresh keeps the previous
+cache (offline-tolerant).
+
+### Domain age (RDAP)
+
+When a page or form destination already shows at least one suspicion signal, PhishGuard asks
+`rdap.org` for the domain's registration date; domains younger than 30 days add a weighted
+signal. Results are cached for 30 days (failures for 1 day), and lookups never happen for
+ordinary, signal-free browsing — so your normal history is not revealed to RDAP servers.
+Toggle in Dashboard → Settings → Heuristics.
 
 ## Audit log & tamper evidence
 
@@ -166,6 +190,9 @@ plaintext domains. Export as CSV or JSON from the dashboard; retention is config
 - The audit log lives in your browser profile and leaves it only via your explicit export.
 - Email inspection reads only the message DOM already rendered in your webmail tab; attachment
   *contents* are never read — only file names.
+- The password-reuse guard never sees plaintext leave the page context: the content script
+  hashes the password (SHA-256), and the background salts and re-hashes both the digest and the
+  origin before storage. The store reveals neither passwords nor browsing history.
 
 ## Testing
 

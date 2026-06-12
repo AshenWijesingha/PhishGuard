@@ -128,6 +128,19 @@ async function evaluateSubmission(info: FormSubmitInfo): Promise<{ allowed: bool
   return { allowed: true, result };
 }
 
+/** SHA-256 hex of the form's first non-empty password value (N10). */
+async function passwordDigest(form: HTMLFormElement): Promise<string | undefined> {
+  const field = form.querySelector<HTMLInputElement>('input[type=password]');
+  const value = field?.value ?? '';
+  if (value.length < 4) return undefined;
+  try {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+    return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  } catch {
+    return undefined;
+  }
+}
+
 function onSubmitCapture(event: SubmitEvent): void {
   const form = event.target;
   if (!(form instanceof HTMLFormElement)) return;
@@ -144,18 +157,26 @@ function onSubmitCapture(event: SubmitEvent): void {
   event.stopImmediatePropagation();
   const { url, method } = effectiveAction(form, event.submitter);
 
-  void evaluateSubmission({
-    pageUrl: location.href,
-    actionUrl: url,
-    method,
-    sensitiveFields: categories,
-    via: 'native',
-  }).then(({ allowed }) => {
+  void (async () => {
+    const pwdDigest = await passwordDigest(form);
+    const { allowed } = await evaluateSubmission({
+      pageUrl: location.href,
+      actionUrl: url,
+      method,
+      sensitiveFields: categories,
+      via: 'native',
+      pwdDigest,
+    });
     if (allowed && form.isConnected) {
+      // Remember the password→origin pairing so future reuse on a
+      // different origin can be flagged (stored salted, never plaintext).
+      if (pwdDigest) {
+        void sendRequest({ kind: 'recordPasswordUse', pwdDigest, origin: location.origin }).catch(() => {});
+      }
       approvedOnce.add(form);
       HTMLFormElement.prototype.submit.call(form);
     }
-  });
+  })();
 }
 
 /** Relay credential-shaped fetch/XHR checks from the MAIN-world hook. */
