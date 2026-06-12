@@ -58,12 +58,16 @@ async function analyzePage(): Promise<void> {
   } else if (verdict === 'high_risk' || verdict === 'suspicious') {
     const settings = await sendRequest<Response>({ kind: 'getSettings' }).catch(() => null);
     const bannerEnabled = !settings || settings.kind !== 'settings' || settings.settings.suspiciousBanner;
-    if (bannerEnabled) {
-      showBanner(
-        signals[0]?.reason ?? 'This page shows signs of phishing. Be careful with any information you enter.',
-        () => void sendRequest({ kind: 'addToAllowlist', domain: location.hostname }),
-      );
-    }
+    if (!bannerEnabled) return;
+    // Anti-fatigue: at most one banner per origin per cooldown window.
+    // Risky form submissions are still hard-blocked at submit time
+    // regardless of whether the banner appears.
+    const gate = await sendRequest<Response>({ kind: 'shouldShowBanner', origin: location.origin }).catch(() => null);
+    if (gate?.kind === 'bannerDecision' && !gate.show) return;
+    showBanner(
+      signals[0]?.reason ?? 'This page shows signs of phishing. Be careful with any information you enter.',
+      () => void sendRequest({ kind: 'addToAllowlist', domain: location.hostname }),
+    );
   }
 }
 

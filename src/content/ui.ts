@@ -25,6 +25,7 @@ function makeHost(id: string): { host: HTMLElement; root: ShadowRoot } {
     .modal-backdrop { position: fixed; inset: 0; background: rgba(10,12,16,.72); display: flex; align-items: center; justify-content: center; }
     .card { background: #fff; color: #16191f; border-radius: 12px; max-width: 560px; width: calc(100vw - 48px); box-shadow: 0 18px 60px rgba(0,0,0,.45); overflow: hidden; }
     .card-head { padding: 18px 22px; color: #fff; font-size: 17px; font-weight: 700; display: flex; gap: 10px; align-items: center; }
+    .card-head.suspicious { background: #b97700; }
     .card-head.high_risk { background: #c62f17; }
     .card-head.malicious { background: #7a0c0c; }
     .card-body { padding: 18px 22px; font-size: 14px; line-height: 1.5; max-height: 50vh; overflow: auto; }
@@ -68,6 +69,8 @@ export interface ModalOptions {
   verdict: Verdict;
   signals: Signal[];
   destination: string;
+  /** Host of the page the user is on, contrasted against the destination. */
+  pageHost?: string;
   /** Required typed phrase to override a Confirmed Malicious verdict. */
   overridePhrase?: string;
 }
@@ -99,13 +102,23 @@ export function showBlockingModal(opts: ModalOptions): Promise<boolean> {
 
     const card = el('div', 'card');
     const head = el('div', `card-head ${opts.verdict}`);
-    head.append(el('span', undefined, '⚠'), el('span', undefined, `PhishGuard blocked this submission — ${VERDICT_LABEL[opts.verdict]}`));
+    const headText =
+      opts.verdict === 'suspicious'
+        ? 'PhishGuard paused this submission — Suspicious destination'
+        : `PhishGuard blocked this submission — ${VERDICT_LABEL[opts.verdict]}`;
+    head.append(el('span', undefined, '⚠'), el('span', undefined, headText));
 
     const body = el('div', 'card-body');
     const lead = el('p', 'lead');
-    lead.append('This form was about to send your information to ');
+    if (opts.pageHost) {
+      lead.append('You are on ');
+      lead.append(el('span', 'dest', opts.pageHost));
+      lead.append(', but this form was about to send your information to ');
+    } else {
+      lead.append('This form was about to send your information to ');
+    }
     lead.append(el('span', 'dest', opts.destination));
-    lead.append('. PhishGuard stopped it because:');
+    lead.append('. Nothing has been sent yet. PhishGuard stepped in because:');
     const reasons = el('ul', 'reasons');
     for (const s of opts.signals) reasons.appendChild(el('li', undefined, s.reason));
     body.append(lead, reasons);

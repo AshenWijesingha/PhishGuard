@@ -35,6 +35,12 @@ export interface Settings {
   rdapDomainAge: boolean;
   /** Warn when a password was previously used on a different origin (N10). */
   passwordReuseGuard: boolean;
+  /**
+   * Show the blocking pre-submit modal for Suspicious form destinations
+   * too (not just High Risk) — the decisive intervention happens at submit
+   * time instead of relying on dismissible banners.
+   */
+  confirmSuspiciousSubmissions: boolean;
   /** Enable webmail email inspection. */
   emailInspection: boolean;
   /** Show non-blocking banner on Suspicious pages. */
@@ -57,6 +63,7 @@ export const DEFAULT_SETTINGS: Settings = {
   },
   rdapDomainAge: true,
   passwordReuseGuard: true,
+  confirmSuspiciousSubmissions: true,
   emailInspection: true,
   suspiciousBanner: true,
 };

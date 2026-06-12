@@ -51,7 +51,9 @@ export type Request =
   | { kind: 'getSettings' }
   | { kind: 'updateSettings'; settings: Partial<Settings> }
   | { kind: 'reportPhishing'; url: string; signals: Signal[] }
-  | { kind: 'recordPasswordUse'; pwdDigest: string; origin: string };
+  | { kind: 'recordPasswordUse'; pwdDigest: string; origin: string }
+  /** Anti-fatigue gate: may a non-blocking banner be shown for this origin right now? */
+  | { kind: 'shouldShowBanner'; origin: string };
 
 export interface AuditFilter {
   text?: string;
@@ -82,6 +84,9 @@ export type Response =
   | { kind: 'lists'; allowlist: string[]; blocklist: string[] }
   | { kind: 'settings'; settings: Settings }
   | { kind: 'ok' }
+  /** Result of a list add — movedFromOtherList = it was relocated, not duplicated. */
+  | { kind: 'listAdded'; movedFromOtherList: boolean }
+  | { kind: 'bannerDecision'; show: boolean }
   | { kind: 'error'; message: string };
 
 export function sendRequest<T extends Response>(req: Request): Promise<T> {

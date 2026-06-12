@@ -2,6 +2,9 @@
  * Local allowlist ("this is a false positive") and blocklist management
  * (M11). Stored in chrome.storage.local; matching is by registrable domain
  * with subdomain inheritance.
+ *
+ * The lists are mutually exclusive: adding a domain to one removes it from
+ * the other, so a domain can never be simultaneously trusted and blocked.
  */
 import { parseHost } from '../core/url-heuristics';
 
@@ -38,10 +41,20 @@ export async function getBlocklist(): Promise<string[]> {
   return getList(BLOCK_KEY);
 }
 
-export async function addToAllowlist(domain: string): Promise<void> {
+/** Result of an add: whether the domain was moved from the opposite list. */
+export interface AddResult {
+  added: boolean;
+  movedFromOtherList: boolean;
+}
+
+export async function addToAllowlist(domain: string): Promise<AddResult> {
   const d = normalizeDomain(domain);
-  if (!d) return;
+  if (!d) return { added: false, movedFromOtherList: false };
+  const block = await getBlocklist();
+  const moved = block.includes(d);
+  if (moved) await setList(BLOCK_KEY, block.filter((x) => x !== d));
   await setList(ALLOW_KEY, [...(await getAllowlist()), d]);
+  return { added: true, movedFromOtherList: moved };
 }
 
 export async function removeFromAllowlist(domain: string): Promise<void> {
@@ -49,10 +62,14 @@ export async function removeFromAllowlist(domain: string): Promise<void> {
   await setList(ALLOW_KEY, (await getAllowlist()).filter((x) => x !== d));
 }
 
-export async function addToBlocklist(domain: string): Promise<void> {
+export async function addToBlocklist(domain: string): Promise<AddResult> {
   const d = normalizeDomain(domain);
-  if (!d) return;
+  if (!d) return { added: false, movedFromOtherList: false };
+  const allow = await getAllowlist();
+  const moved = allow.includes(d);
+  if (moved) await setList(ALLOW_KEY, allow.filter((x) => x !== d));
   await setList(BLOCK_KEY, [...(await getBlocklist()), d]);
+  return { added: true, movedFromOtherList: moved };
 }
 
 export async function removeFromBlocklist(domain: string): Promise<void> {

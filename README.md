@@ -25,10 +25,10 @@ explicitly export it.
 | Education | Just-in-time "How does this scam work?" cards in the blocking modal, plus a full techniques library in the dashboard |
 | Content heuristics | On-device urgency/pressure language, credential solicitation, payment/gift-card lures, brand keyword + off-brand domain pairing |
 | Risk scoring | Weighted signals → **Safe / Suspicious / High Risk / Confirmed Malicious**, with configurable weights and thresholds |
-| Protection | Hard-block interstitial for blocklisted domains (declarativeNetRequest, before page render); blocking pre-submit modal for High Risk (cancel is default); typed-phrase override for Confirmed Malicious |
+| Protection | Hard-block interstitial for blocklisted domains (declarativeNetRequest, before page render); blocking pre-submit modal for Suspicious & High Risk destinations showing exactly where the data would go (cancel is default); typed-phrase override for Confirmed Malicious |
 | Audit log | Append-only, **hash-chained** IndexedDB log of detections, blocks, overrides, TI hits, and flagged visits; survives restarts; tampering is detectable |
-| Dashboard | Log search/filter/stats, integrity verification, CSV/JSON export, allowlist/blocklist management, sensitivity & feed settings |
-| UX | Toolbar badge per-page verdict, plain-language explanations, keyboard-navigable & ARIA-labelled UI, dark-mode & reduced-motion aware |
+| Dashboard | Activity/verdict/top-domain **charts**, log search/filter/stats, integrity verification, CSV/JSON export, allowlist/blocklist management (mutually exclusive lists), sensitivity & feed settings |
+| UX | Toolbar badge per-page verdict, plain-language explanations, banner anti-fatigue (one banner per origin per 6 h — enforcement happens at submit time instead), keyboard-navigable & ARIA-labelled UI, dark-mode & reduced-motion aware |
 
 ## Installation
 

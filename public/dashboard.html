@@ -20,6 +20,22 @@
   <main>
     <section id="tab-log" role="tabpanel">
       <div class="stats" id="stats" aria-label="Statistics"></div>
+      <div class="charts">
+        <div class="chart-card wide">
+          <h3>Activity — last 14 days</h3>
+          <div id="chart-activity" role="img" aria-label="Daily security events, last 14 days"></div>
+          <div class="legend" id="legend-activity"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Verdict breakdown</h3>
+          <div id="chart-verdicts" role="img" aria-label="Share of events by verdict"></div>
+          <div class="legend" id="legend-verdicts"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Top flagged domains</h3>
+          <div id="chart-domains" aria-label="Most frequently flagged domains"></div>
+        </div>
+      </div>
       <div class="toolbar">
         <input id="log-search" type="search" placeholder="Search domain, URL, or signal…" aria-label="Search audit log" />
         <select id="log-type" aria-label="Filter by event type">
@@ -46,6 +62,8 @@
     </section>
 
     <section id="tab-lists" role="tabpanel" hidden>
+      <p class="hint">A domain can only be on one list: adding it to the allowlist removes it from the blocklist, and vice versa.</p>
+      <div id="list-notice" role="status"></div>
       <div class="lists-grid">
         <div>
           <h2>Allowlist (trusted sites)</h2>
@@ -85,6 +103,7 @@
       <h2>Heuristics</h2>
       <label class="check"><input type="checkbox" id="rdap-age" /> Domain-age lookups (cached RDAP, only for already-suspicious pages)</label>
       <label class="check"><input type="checkbox" id="pwd-guard" /> Password-reuse warnings (salted hashes only, never plaintext)</label>
+      <label class="check"><input type="checkbox" id="confirm-suspicious" /> Ask before submitting forms to Suspicious destinations, not just High Risk (recommended)</label>
       <h2>Privacy</h2>
       <label class="check"><input type="checkbox" id="privacy-hash" /> Store only hashed domains in the audit log</label>
       <label class="check"><input type="checkbox" id="email-inspection" /> Inspect webmail messages (Gmail / Outlook)</label>

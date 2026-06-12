@@ -3,6 +3,28 @@
 All notable changes to PhishGuard are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/), versioning: SemVer.
 
+## [1.2.0] — 2026-06-12
+
+### Added
+- **Dashboard charts:** hand-rolled, CSP-friendly SVG/CSS visualizations on the audit-log tab —
+  stacked daily activity for the last 14 days (blocked / flagged / other), a verdict-breakdown
+  donut, and a top-flagged-domains bar list. Charts react to the active search/type filters
+  and adapt to dark mode.
+- **Suspicious-destination confirmation:** the blocking pre-submit modal now also appears for
+  *Suspicious* form destinations (configurable, on by default), with explicit
+  "You are on X, but this form sends your information to Y" framing — the decisive
+  intervention happens before any data leaves the page, not in a dismissible banner.
+
+### Changed
+- **Allow/blocklist mutual exclusivity:** a domain can only ever be on one list. Adding to the
+  allowlist removes it from the blocklist (and resyncs the declarativeNetRequest rules), and
+  vice versa; the dashboard announces when a domain is moved, and the audit log records it.
+- **Notification anti-fatigue:** the non-blocking "suspicious page" banner now appears at most
+  once per origin per 6-hour window within a browser session (chrome.storage.session), ending
+  consecutive-banner spam. After a user explicitly overrides a warning for a destination, they
+  are not re-prompted for the same destination on the same page load (every pass-through is
+  still audit-logged).
+
 ## [1.1.0] — 2026-06-12
 
 ### Added — post-MVP protection batch (N1, N2, N5, N10, N14) + CI

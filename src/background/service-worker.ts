@@ -360,6 +360,34 @@ async function handleEmail(pageUrl: string, email: EmailSignals): Promise<Verdic
 }
 
 // ---------------------------------------------------------------------------
+// Banner anti-fatigue gate: a non-blocking banner is shown at most once per
+// origin per cooldown window (per browser session — chrome.storage.session
+// clears on browser exit). Repeated visits to the same flagged site no
+// longer stack notifications; enforcement happens at submit time instead.
+
+const BANNER_TIMES_KEY = 'pg_banner_times';
+const BANNER_COOLDOWN_MS = 6 * 60 * 60 * 1000;
+
+async function shouldShowBanner(origin: string): Promise<boolean> {
+  try {
+    const times =
+      ((await chrome.storage.session.get(BANNER_TIMES_KEY))[BANNER_TIMES_KEY] as Record<string, number> | undefined) ?? {};
+    const last = times[origin];
+    if (last !== undefined && Date.now() - last < BANNER_COOLDOWN_MS) return false;
+    times[origin] = Date.now();
+    // Bound the map (oldest first) so a long session can't grow it unbounded.
+    const keys = Object.keys(times);
+    if (keys.length > 500) {
+      keys.sort((a, b) => times[a]! - times[b]!).slice(0, keys.length - 500).forEach((k) => delete times[k]);
+    }
+    await chrome.storage.session.set({ [BANNER_TIMES_KEY]: times });
+    return true;
+  } catch {
+    return true; // storage.session unavailable: behave as before
+  }
+}
+
+// ---------------------------------------------------------------------------
 // declarativeNetRequest: block navigations to blocklisted domains (M9)
 
 const DNR_RULE_OFFSET = 1000;
@@ -431,18 +459,32 @@ chrome.runtime.onMessage.addListener((msg: Request, sender, sendResponse: (r: Re
         return { kind: 'ok' };
       case 'getLists':
         return { kind: 'lists', allowlist: await getAllowlist(), blocklist: await getBlocklist() };
-      case 'addToAllowlist':
-        await addToAllowlist(msg.domain);
-        await logEvent({ type: 'allowlist_add', domain: msg.domain, signals: [], userDecision: 'allowed' });
-        return { kind: 'ok' };
+      case 'addToAllowlist': {
+        const res = await addToAllowlist(msg.domain);
+        // The domain may have been moved off the blocklist — resync DNR.
+        if (res.movedFromOtherList) await syncBlocklistRules();
+        await logEvent({
+          type: 'allowlist_add',
+          domain: msg.domain,
+          signals: res.movedFromOtherList ? ['Moved from blocklist to allowlist.'] : [],
+          userDecision: 'allowed',
+        });
+        return { kind: 'listAdded', movedFromOtherList: res.movedFromOtherList };
+      }
       case 'removeFromAllowlist':
         await removeFromAllowlist(msg.domain);
         return { kind: 'ok' };
-      case 'addToBlocklist':
-        await addToBlocklist(msg.domain);
+      case 'addToBlocklist': {
+        const res = await addToBlocklist(msg.domain);
         await syncBlocklistRules();
-        await logEvent({ type: 'blocklist_add', domain: msg.domain, signals: [], userDecision: 'blocked' });
-        return { kind: 'ok' };
+        await logEvent({
+          type: 'blocklist_add',
+          domain: msg.domain,
+          signals: res.movedFromOtherList ? ['Moved from allowlist to blocklist.'] : [],
+          userDecision: 'blocked',
+        });
+        return { kind: 'listAdded', movedFromOtherList: res.movedFromOtherList };
+      }
       case 'removeFromBlocklist':
         await removeFromBlocklist(msg.domain);
         await syncBlocklistRules();
@@ -465,6 +507,8 @@ chrome.runtime.onMessage.addListener((msg: Request, sender, sendResponse: (r: Re
         if (settings.passwordReuseGuard) await recordPasswordUse(msg.pwdDigest, msg.origin);
         return { kind: 'ok' };
       }
+      case 'shouldShowBanner':
+        return { kind: 'bannerDecision', show: await shouldShowBanner(msg.origin) };
     }
   })()
     .then(sendResponse)

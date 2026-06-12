@@ -85,17 +85,38 @@ export function effectiveAction(form: HTMLFormElement, submitter?: HTMLElement |
 // bypasses the submit event, so no re-entry happens.
 const approvedOnce = new WeakSet<HTMLFormElement>();
 
+// Destinations the user already explicitly overrode on this page load —
+// don't re-prompt for the same destination seconds later (modal fatigue),
+// but the decision dies with the page and is always audit-logged.
+const sessionOverrides = new Set<string>();
+
+function destKey(actionUrl: string): string {
+  try {
+    return new URL(actionUrl).origin;
+  } catch {
+    return actionUrl;
+  }
+}
+
 async function evaluateSubmission(info: FormSubmitInfo): Promise<{ allowed: boolean; result: VerdictResult }> {
   let result: VerdictResult;
+  let confirmSuspicious = true;
   try {
     const res = await sendRequest<Response>({ kind: 'analyzeFormSubmit', info });
     result = res.kind === 'verdict' ? res.result : { verdict: 'safe', score: 0, signals: [] };
+    const settingsRes = await sendRequest<Response>({ kind: 'getSettings' }).catch(() => null);
+    if (settingsRes?.kind === 'settings') confirmSuspicious = settingsRes.settings.confirmSuspiciousSubmissions;
   } catch {
     // Background unavailable (e.g. extension reload): fail open.
     return { allowed: true, result: { verdict: 'safe', score: 0, signals: [] } };
   }
 
-  if (result.verdict === 'high_risk' || result.verdict === 'malicious') {
+  const needsConfirmation =
+    result.verdict === 'high_risk' ||
+    result.verdict === 'malicious' ||
+    (result.verdict === 'suspicious' && confirmSuspicious);
+
+  if (needsConfirmation) {
     const destination = (() => {
       try {
         return new URL(info.actionUrl).host;
@@ -103,13 +124,34 @@ async function evaluateSubmission(info: FormSubmitInfo): Promise<{ allowed: bool
         return info.actionUrl;
       }
     })();
+    const pageHost = location.host;
+
+    // Honor a previous explicit override for this destination on this page.
+    if (sessionOverrides.has(destKey(info.actionUrl))) {
+      void sendRequest({
+        kind: 'appendAudit',
+        event: {
+          type: 'user_override',
+          domain: destination,
+          url: info.actionUrl,
+          verdict: result.verdict,
+          score: result.score,
+          signals: result.signals.map((s) => s.reason),
+          userDecision: 'overridden (remembered for this page)',
+        },
+      }).catch(() => {});
+      return { allowed: true, result };
+    }
+
     const allowed = await showBlockingModal({
       verdict: result.verdict,
       signals: result.signals,
       destination,
+      pageHost: pageHost && pageHost !== destination ? pageHost : undefined,
       overridePhrase: result.verdict === 'malicious' ? 'send my data anyway' : undefined,
     });
     if (allowed) {
+      sessionOverrides.add(destKey(info.actionUrl));
       void sendRequest({
         kind: 'appendAudit',
         event: {
