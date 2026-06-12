@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PhishGuard</title>
+  <link rel="stylesheet" href="ui.css" />
+</head>
+<body class="popup">
+  <header class="pop-head">
+    <span class="logo" aria-hidden="true">🛡</span>
+    <h1>PhishGuard</h1>
+  </header>
+  <main>
+    <div id="verdict-pill" class="pill safe" role="status">Checking…</div>
+    <div id="site" class="site"></div>
+    <section id="signals" aria-label="Detected signals"></section>
+    <div class="actions">
+      <button id="btn-allow" type="button">This is a false positive</button>
+      <button id="btn-report" type="button">Report as phishing</button>
+      <button id="btn-block" type="button" class="danger">Block this site</button>
+    </div>
+  </main>
+  <footer>
+    <a href="#" id="open-dashboard">Open dashboard &amp; audit log</a>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>
