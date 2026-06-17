@@ -1,5 +1,11 @@
 # PhishGuard 🛡
 
+> **Learning site:** an interactive landing & education page lives in [`index.html`](index.html) and is
+> published to **GitHub Pages** automatically on every push to `main` (see `.github/workflows/pages.yml`).
+> It explains phishing, includes a live in-browser URL Inspector and a Spot-the-Phish quiz, and walks
+> through installing and using the extension. Once Pages is enabled it is served at
+> `https://ashenwijesingha.github.io/PhishGuard/`.
+
 A production-grade, privacy-respecting anti-phishing browser extension (Manifest V3, Chrome/Edge).
 PhishGuard detects phishing websites and webmail messages in real time, **intercepts risky form
 submissions before credentials leave the page**, explains *why* something was flagged in plain
