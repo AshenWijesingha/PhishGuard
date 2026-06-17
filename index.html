@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PhishGuard — Learn to Beat Phishing &amp; Protect Your Logins</title>
+  <meta name="description" content="PhishGuard is a privacy-respecting anti-phishing browser extension and a free learning platform. Understand phishing attacks, practise spotting them, and learn the best practices that stop credential theft — all on-device, no tracking." />
+  <meta name="color-scheme" content="light dark" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="PhishGuard — Learn to Beat Phishing" />
+  <meta property="og:description" content="A free, interactive platform to understand and defend against phishing — plus a privacy-first browser extension that blocks credential theft before it happens." />
+  <meta property="og:type" content="website" />
+
+  <!-- Tailwind CSS (CDN build — this learning page is a standalone static site, not the extension) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#eef5fc',100:'#d6e7f7',200:'#aecdef',300:'#7fb0e6',400:'#4d8fd8',500:'#1b5ea8',600:'#174f8c',700:'#143f70',color:'#1b5ea8' },
+            danger: '#e0341b',
+            warn: '#f5a623',
+            safe: '#2e8540',
+          },
+          fontFamily: {
+            sans: ['ui-sans-serif','system-ui','-apple-system','Segoe UI','Roboto','Helvetica','Arial','sans-serif'],
+            mono: ['ui-monospace','SFMono-Regular','Menlo','Consolas','monospace'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
+    .reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    .grad-text { background: linear-gradient(90deg,#4d8fd8,#1b5ea8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    details > summary { list-style: none; cursor: pointer; }
+    details > summary::-webkit-details-marker { display: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-200 font-sans antialiased">
+
+  <!-- ============================== NAV ============================== -->
+  <header class="sticky top-0 z-50 backdrop-blur bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16" aria-label="Primary">
+      <a href="#top" class="flex items-center gap-2 font-extrabold text-lg">
+        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500 text-white shadow-sm">🛡️</span>
+        <span>Phish<span class="grad-text">Guard</span></span>
+      </a>
+      <div class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <a href="#learn" class="hover:text-brand-500">Learn</a>
+        <a href="#types" class="hover:text-brand-500">Attack Types</a>
+        <a href="#inspector" class="hover:text-brand-500">URL Inspector</a>
+        <a href="#quiz" class="hover:text-brand-500">Quiz</a>
+        <a href="#practices" class="hover:text-brand-500">Best Practices</a>
+        <a href="#tool" class="hover:text-brand-500">The Tool</a>
+        <a href="#install" class="hover:text-brand-500">Install</a>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="theme-toggle" class="h-9 w-9 grid place-items-center rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Toggle dark mode">
+          <span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span>
+        </button>
+        <a href="https://github.com/AshenWijesingha/PhishGuard" target="_blank" rel="noopener" class="hidden sm:inline-flex items-center gap-1 text-sm font-semibold px-3 h-9 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">GitHub ↗</a>
+        <button id="menu-btn" class="md:hidden h-9 w-9 grid place-items-center rounded-lg border border-slate-300 dark:border-slate-700" aria-label="Open menu" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+    <div id="mobile-menu" class="md:hidden hidden border-t border-slate-200 dark:border-slate-800 px-4 py-3 space-y-2 text-sm font-medium">
+      <a href="#learn" class="block py-1">Learn</a>
+      <a href="#types" class="block py-1">Attack Types</a>
+      <a href="#inspector" class="block py-1">URL Inspector</a>
+      <a href="#quiz" class="block py-1">Quiz</a>
+      <a href="#practices" class="block py-1">Best Practices</a>
+      <a href="#tool" class="block py-1">The Tool</a>
+      <a href="#install" class="block py-1">Install</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+  <!-- ============================== HERO ============================== -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-brand-50 to-slate-50 dark:from-slate-900 dark:to-slate-950"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-300 bg-brand-100 dark:bg-brand-700/30 px-3 py-1 rounded-full">Manifest V3 · 100% on-device · No telemetry</span>
+        <h1 class="mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">
+          Stop phishing <span class="grad-text">before</span> your password leaves the page.
+        </h1>
+        <p class="mt-5 text-lg text-slate-600 dark:text-slate-300 max-w-xl">
+          PhishGuard is two things in one: a privacy-first browser extension that intercepts
+          credential theft in real time, and a free, interactive platform to <strong>learn</strong>
+          how phishing works and how to defend against it.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#install" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold shadow-lg shadow-brand-500/20">Install the extension</a>
+          <a href="#learn" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-slate-300 dark:border-slate-700 font-semibold hover:bg-white dark:hover:bg-slate-800">Start learning →</a>
+        </div>
+        <dl class="mt-10 grid grid-cols-3 gap-4 max-w-md">
+          <div><dt class="text-2xl font-extrabold text-brand-500">4</dt><dd class="text-xs text-slate-500 dark:text-slate-400">verdict tiers</dd></div>
+          <div><dt class="text-2xl font-extrabold text-brand-500">0</dt><dd class="text-xs text-slate-500 dark:text-slate-400">bytes sent to us</dd></div>
+          <div><dt class="text-2xl font-extrabold text-brand-500">78</dt><dd class="text-xs text-slate-500 dark:text-slate-400">passing tests</dd></div>
+        </dl>
+      </div>
+      <div class="relative">
+        <!-- Mock browser warning card -->
+        <div class="rounded-2xl shadow-2xl shadow-slate-900/10 border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900">
+          <div class="bg-danger text-white px-5 py-4 font-bold flex items-center gap-2">⚠️ PhishGuard blocked this submission — High Risk</div>
+          <div class="p-5 space-y-3 text-sm">
+            <p>You are on <code class="font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">accounts-secure.example</code>, but this form was about to send your information to <code class="font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">collect.evil-harvest.tk</code>. <strong>Nothing has been sent yet.</strong></p>
+            <ul class="space-y-2">
+              <li class="flex gap-2"><span class="text-danger">●</span> This form sends your data to a different site than the one you're viewing.</li>
+              <li class="flex gap-2"><span class="text-danger">●</span> The domain "paypaI.com" imitates PayPal using a lookalike character.</li>
+              <li class="flex gap-2"><span class="text-warn">●</span> The domain was registered only 3 days ago.</li>
+            </ul>
+            <div class="pt-2 flex flex-col gap-2">
+              <button class="w-full py-2.5 rounded-lg bg-brand-500 text-white font-semibold">Go back — don't send (recommended)</button>
+              <button class="w-full py-2 text-slate-400 underline text-xs">Proceed anyway (not recommended)</button>
+            </div>
+          </div>
+        </div>
+        <div class="absolute -bottom-4 -right-4 -z-10 h-40 w-40 rounded-full bg-brand-300/40 blur-3xl"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== TRUST STRIP ============================== -->
+  <section class="border-y border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div><div class="text-2xl">🔒</div><p class="mt-1 font-semibold">On-device analysis</p><p class="text-xs text-slate-500 dark:text-slate-400">Your content never leaves your machine</p></div>
+      <div><div class="text-2xl">🚫</div><p class="mt-1 font-semibold">No telemetry</p><p class="text-xs text-slate-500 dark:text-slate-400">Zero tracking, zero analytics by default</p></div>
+      <div><div class="text-2xl">🧩</div><p class="mt-1 font-semibold">Manifest V3</p><p class="text-xs text-slate-500 dark:text-slate-400">Chrome &amp; Edge, with Firefox notes</p></div>
+      <div><div class="text-2xl">📖</div><p class="mt-1 font-semibold">Open source</p><p class="text-xs text-slate-500 dark:text-slate-400">Auditable TypeScript, minimal permissions</p></div>
+    </div>
+  </section>
+
+  <!-- ============================== LEARN: WHAT IS PHISHING ============================== -->
+  <section id="learn" class="max-w-7xl mx-auto px-4 sm:px-6 py-20">
+    <div class="max-w-3xl">
+      <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">The Learning Platform</p>
+      <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold">What is phishing, really?</h2>
+      <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
+        <strong>Phishing</strong> is a social-engineering attack where a criminal impersonates a
+        trusted person, brand, or service to trick you into revealing secrets — passwords,
+        card numbers, one-time codes, recovery phrases — or into installing malware. The
+        message looks legitimate; the destination is not.
+      </p>
+      <p class="mt-4 text-slate-600 dark:text-slate-300">
+        Phishing works on <em>people</em>, not just computers. It exploits trust, urgency,
+        fear, and habit. That's why awareness — knowing the patterns below — is your strongest
+        single defence, and why PhishGuard pairs a technical shield with this learning platform.
+      </p>
+    </div>
+
+    <div class="mt-12 grid md:grid-cols-3 gap-6">
+      <div class="reveal rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+        <div class="text-3xl">🎭</div>
+        <h3 class="mt-3 font-bold text-lg">Impersonation</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">A cloned login page or spoofed sender pretends to be your bank, employer, or a service you use. The logo is free to copy; the domain is the part that can't be faked.</p>
+      </div>
+      <div class="reveal rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+        <div class="text-3xl">⏰</div>
+        <h3 class="mt-3 font-bold text-lg">Urgency &amp; fear</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">"Your account will be suspended in 24 hours." Pressure short-circuits careful thinking and pushes you to act before you verify.</p>
+      </div>
+      <div class="reveal rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+        <div class="text-3xl">🪝</div>
+        <h3 class="mt-3 font-bold text-lg">The hook</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">A link or attachment leads to a credential-harvesting page or malware. One click and one form submission is all it takes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== ATTACK TYPES ============================== -->
+  <section id="types" class="bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20">
+      <h2 class="text-3xl sm:text-4xl font-extrabold">Know your enemy: types of phishing</h2>
+      <p class="mt-3 text-slate-600 dark:text-slate-300 max-w-2xl">Phishing has many delivery channels and targeting strategies. Recognising the category helps you spot the play.</p>
+      <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- cards injected for brevity in markup -->
+        <article class="rounded-2xl border border-slate-200 dark:border-slate-800 p-6"><div class="text-2xl">📧</div><h3 class="mt-2 font-bold">Email phishing</h3><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Mass, generic emails impersonating a brand, hoping a fraction of recipients click. The most common form.</p></article>
+        <article class="rounded-2xl border border-slate-200 dark:border-slate-800 p-6"><div class="text-2xl">🎯</div><h3 class="mt-2 font-bold">Spear phishing</h3><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Targeted at a specific person, using real details (your name, role, projects) to feel authentic.</p></article>
+        <article class="rounded-2xl border border-slate-200 dark:border-slate-800 p-6"><div class="text-2xl">🐳</div><h3 class="mt-2 font-bold">Whaling / BEC</h3><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Business Email Compromise targeting executives or finance staff to authorise fraudulent payments.</p></article>
+        <article class="rounded-2xl border border-slate-200 dark:border-slate-800 p-6"><div class="text-2xl">💬</div><h3 class="mt-2 font-bold">Smishing</h3><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Phishing over SMS/text — fake delivery notices, bank alerts, or "you've won" messages with short links.</p></article>
+        <article class="rounded-2xl border border-slate-200 dark:border-slate-800 p-6"><div class="text-2xl">📞</div><h3 class="mt-2 font-bold">Vishing</h3><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Voice phishing — a caller posing as support or your bank to extract codes or remote access.</p></article>
+        <article class="rounded-2xl border border-slate-200 dark:border-slate-800 p-6"><div class="text-2xl">🔳</div><h3 class="mt-2 font-bold">Quishing</h3><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">QR-code phishing — a printed or emailed QR code points your phone at a malicious site.</p></article>
+        <article class="rounded-2xl border border-slate-200 dark:border-slate-800 p-6"><div class="text-2xl">👯</div><h3 class="mt-2 font-bold">Clone phishing</h3><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">A copy of a real email you received, with links swapped for malicious ones.</p></article>
+        <article class="rounded-2xl border border-slate-200 dark:border-slate-800 p-6"><div class="text-2xl">🧭</div><h3 class="mt-2 font-bold">Pharming</h3><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">DNS/host manipulation silently redirects a correct address to a fake server.</p></article>
+        <article class="rounded-2xl border border-slate-200 dark:border-slate-800 p-6"><div class="text-2xl">🛗</div><h3 class="mt-2 font-bold">Angler phishing</h3><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Fake "support" accounts on social media intercept your complaints and harvest credentials.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== RED FLAGS ============================== -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-20">
+    <h2 class="text-3xl sm:text-4xl font-extrabold">Anatomy of a phishing attempt: the red flags</h2>
+    <p class="mt-3 text-slate-600 dark:text-slate-300 max-w-2xl">These are the exact signals PhishGuard scores automatically — learn to see them yourself.</p>
+    <div class="mt-10 grid md:grid-cols-2 gap-x-12 gap-y-4">
+      <div class="space-y-4" id="redflags-left"></div>
+      <div class="space-y-4" id="redflags-right"></div>
+    </div>
+  </section>
+
+  <!-- ============================== INTERACTIVE URL INSPECTOR ============================== -->
+  <section id="inspector" class="bg-slate-900 text-slate-100 border-y border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-20">
+      <p class="text-sm font-semibold uppercase tracking-wider text-brand-300">Interactive · runs entirely in your browser</p>
+      <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold">Try the URL Inspector</h2>
+      <p class="mt-3 text-slate-300 max-w-2xl">Paste any link and see the same kind of heuristic checks PhishGuard's engine runs — homoglyphs, typosquats, IP hosts, the "@" trick, shorteners and more. Nothing is sent anywhere; the analysis happens locally in JavaScript.</p>
+
+      <div class="mt-8 rounded-2xl bg-slate-800/60 ring-1 ring-slate-700 p-5 sm:p-7">
+        <label for="url-input" class="block text-sm font-medium text-slate-300">Enter a URL to inspect</label>
+        <div class="mt-2 flex flex-col sm:flex-row gap-3">
+          <input id="url-input" type="text" inputmode="url" spellcheck="false" placeholder="https://paypaI.com.secure-login.tk/verify"
+            class="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-4 py-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" />
+          <button id="inspect-btn" class="px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-semibold">Inspect</button>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2 text-xs" id="samples"></div>
+        <div id="inspect-result" class="mt-6"></div>
+      </div>
+      <p class="mt-4 text-xs text-slate-400">⚠️ This demo is a teaching tool with a simplified ruleset. The real extension adds threat-intelligence feeds, content analysis, form-destination checks and a tamper-evident audit log.</p>
+    </div>
+  </section>
+
+  <!-- ============================== QUIZ ============================== -->
+  <section id="quiz" class="max-w-4xl mx-auto px-4 sm:px-6 py-20">
+    <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">Test yourself</p>
+    <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold">Spot-the-Phish quiz</h2>
+    <p class="mt-3 text-slate-600 dark:text-slate-300">Five quick scenarios. Pick the safest action — then learn why.</p>
+    <div id="quiz-root" class="mt-8"></div>
+  </section>
+
+  <!-- ============================== BEST PRACTICES ============================== -->
+  <section id="practices" class="bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20">
+      <h2 class="text-3xl sm:text-4xl font-extrabold">Best practices to prevent phishing</h2>
+      <p class="mt-3 text-slate-600 dark:text-slate-300 max-w-2xl">Habits that defeat the vast majority of attacks — with or without a tool.</p>
+      <div class="mt-10 grid md:grid-cols-2 gap-x-12 gap-y-5" id="practices-grid"></div>
+
+      <div class="mt-12 rounded-2xl border border-brand-200 dark:border-brand-700/40 bg-brand-50 dark:bg-brand-700/10 p-6">
+        <h3 class="font-bold text-lg">🆘 If you think you've been phished</h3>
+        <ol class="mt-3 grid sm:grid-cols-2 gap-3 text-sm text-slate-700 dark:text-slate-300 list-decimal list-inside">
+          <li>Change the password immediately — from a device you trust, by typing the real address yourself.</li>
+          <li>Enable or reset multi-factor authentication on that account.</li>
+          <li>Check for unauthorised activity, rules, or forwarding you didn't create.</li>
+          <li>If you reused that password anywhere, change it there too.</li>
+          <li>Report it: to your IT/security team, the impersonated brand, and anti-phishing bodies (APWG, your national CERT).</li>
+          <li>Watch for follow-up scams — once breached, you become a target.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== THE TOOL: FEATURES ============================== -->
+  <section id="tool" class="max-w-7xl mx-auto px-4 sm:px-6 py-20">
+    <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">The Extension</p>
+    <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold">What PhishGuard does for you</h2>
+    <p class="mt-3 text-slate-600 dark:text-slate-300 max-w-2xl">Detection, protection, and a clear record — all on-device, explained in plain language at the moment of risk.</p>
+
+    <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="features-grid"></div>
+  </section>
+
+  <!-- ============================== HOW IT WORKS ============================== -->
+  <section class="bg-slate-900 text-slate-100 border-y border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+      <h2 class="text-3xl sm:text-4xl font-extrabold">How it works</h2>
+      <div class="mt-10 grid md:grid-cols-4 gap-6">
+        <div class="rounded-2xl bg-slate-800/60 ring-1 ring-slate-700 p-6"><div class="text-brand-300 font-mono text-sm">01</div><h3 class="mt-2 font-bold">Inspect</h3><p class="mt-2 text-sm text-slate-300">Content scripts read the page URL, forms, and (in webmail) the open message — entirely locally.</p></div>
+        <div class="rounded-2xl bg-slate-800/60 ring-1 ring-slate-700 p-6"><div class="text-brand-300 font-mono text-sm">02</div><h3 class="mt-2 font-bold">Score</h3><p class="mt-2 text-sm text-slate-300">A weighted engine combines URL, content, form-destination and threat-intel signals into one of four verdicts.</p></div>
+        <div class="rounded-2xl bg-slate-800/60 ring-1 ring-slate-700 p-6"><div class="text-brand-300 font-mono text-sm">03</div><h3 class="mt-2 font-bold">Intervene</h3><p class="mt-2 text-sm text-slate-300">Risky form submissions are paused <em>before</em> the request fires; a modal shows exactly where your data was headed.</p></div>
+        <div class="rounded-2xl bg-slate-800/60 ring-1 ring-slate-700 p-6"><div class="text-brand-300 font-mono text-sm">04</div><h3 class="mt-2 font-bold">Record</h3><p class="mt-2 text-sm text-slate-300">Every event is appended to a hash-chained, tamper-evident audit log you can search and export — never uploaded.</p></div>
+      </div>
+      <div class="mt-8 grid sm:grid-cols-3 gap-4 text-sm">
+        <div class="rounded-xl bg-slate-800/40 p-4"><span class="font-semibold text-brand-300">Privacy by design.</span> Threat-intel uses hash-prefix / on-device matching. No full URLs are sent to third parties.</div>
+        <div class="rounded-xl bg-slate-800/40 p-4"><span class="font-semibold text-brand-300">Minimal permissions.</span> Only <code>storage</code>, <code>declarativeNetRequest</code>, and <code>alarms</code>.</div>
+        <div class="rounded-xl bg-slate-800/40 p-4"><span class="font-semibold text-brand-300">Strict CSP.</span> No remote code; page/email text is rendered as text, never HTML.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== INSTALL / HOW TO USE ============================== -->
+  <section id="install" class="max-w-7xl mx-auto px-4 sm:px-6 py-20">
+    <p class="text-sm font-semibold uppercase tracking-wider text-brand-500">Get started</p>
+    <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold">Install &amp; use PhishGuard</h2>
+
+    <div class="mt-10 grid lg:grid-cols-2 gap-10">
+      <div>
+        <h3 class="font-bold text-lg">1 · Build &amp; load (developer mode)</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Clone the repo and produce the loadable <code>dist/</code> folder:</p>
+        <pre class="mt-3 rounded-xl bg-slate-900 text-slate-100 p-4 text-sm overflow-x-auto"><code>git clone https://github.com/AshenWijesingha/PhishGuard
+cd PhishGuard
+npm install
+npm run build      # outputs dist/</code></pre>
+        <ol class="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-300 list-decimal list-inside">
+          <li>Open <code>chrome://extensions</code> (or <code>edge://extensions</code>).</li>
+          <li>Enable <strong>Developer mode</strong>.</li>
+          <li>Click <strong>Load unpacked</strong> and choose the <code>dist/</code> folder.</li>
+          <li>Pin the 🛡️ icon — the badge shows each page's verdict.</li>
+        </ol>
+      </div>
+      <div>
+        <h3 class="font-bold text-lg">2 · Configure &amp; explore</h3>
+        <ul class="mt-2 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+          <li class="flex gap-3"><span class="text-brand-500 font-bold">•</span><span><strong>Dashboard → Settings:</strong> tune sensitivity thresholds, enable optional threat feeds (Safe Browsing, PhishTank, OpenPhish, URLhaus, or your enterprise feed), and toggle privacy mode.</span></li>
+          <li class="flex gap-3"><span class="text-brand-500 font-bold">•</span><span><strong>Allow / Block lists:</strong> mark false positives as trusted or block sites outright — a domain can only be on one list.</span></li>
+          <li class="flex gap-3"><span class="text-brand-500 font-bold">•</span><span><strong>Audit log &amp; charts:</strong> review activity, verify the hash chain, and export to CSV/JSON.</span></li>
+          <li class="flex gap-3"><span class="text-brand-500 font-bold">•</span><span><strong>Learn tab:</strong> the same just-in-time education cards you see when a submission is blocked.</span></li>
+        </ul>
+        <div class="mt-6 rounded-xl border border-slate-200 dark:border-slate-800 p-4 text-sm">
+          <p class="font-semibold">Firefox?</p>
+          <p class="mt-1 text-slate-600 dark:text-slate-300">See <code>BROWSER_COMPAT.md</code> for the manifest deltas (event page, <code>browser_specific_settings</code>, declarativeNetRequest limits).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== GLOSSARY ============================== -->
+  <section class="bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-20">
+      <h2 class="text-3xl sm:text-4xl font-extrabold">Glossary</h2>
+      <p class="mt-3 text-slate-600 dark:text-slate-300">The vocabulary of phishing defence, in one place.</p>
+      <div class="mt-8 divide-y divide-slate-200 dark:divide-slate-800" id="glossary"></div>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- ============================== FOOTER ============================== -->
+  <footer class="bg-slate-950 text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid md:grid-cols-3 gap-8">
+      <div>
+        <div class="flex items-center gap-2 text-white font-extrabold text-lg"><span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500">🛡️</span> PhishGuard</div>
+        <p class="mt-3 text-sm">A privacy-respecting anti-phishing extension and learning platform. All analysis on-device. No telemetry.</p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold">Learn</h4>
+        <ul class="mt-3 space-y-1 text-sm">
+          <li><a href="#learn" class="hover:text-white">What is phishing</a></li>
+          <li><a href="#types" class="hover:text-white">Attack types</a></li>
+          <li><a href="#inspector" class="hover:text-white">URL Inspector</a></li>
+          <li><a href="#quiz" class="hover:text-white">Quiz</a></li>
+          <li><a href="#practices" class="hover:text-white">Best practices</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold">Project</h4>
+        <ul class="mt-3 space-y-1 text-sm">
+          <li><a href="https://github.com/AshenWijesingha/PhishGuard" target="_blank" rel="noopener" class="hover:text-white">Source on GitHub ↗</a></li>
+          <li><a href="https://github.com/AshenWijesingha/PhishGuard/blob/main/README.md" target="_blank" rel="noopener" class="hover:text-white">Documentation</a></li>
+          <li><a href="#install" class="hover:text-white">Install guide</a></li>
+        </ul>
+        <p class="mt-4 text-xs">Report real phishing to <a class="underline hover:text-white" href="https://apwg.org" target="_blank" rel="noopener">APWG</a> and your national CERT.</p>
+      </div>
+    </div>
+    <div class="border-t border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 text-xs flex flex-col sm:flex-row justify-between gap-2">
+        <p>© <span id="year"></span> PhishGuard. Educational content provided as-is.</p>
+        <p>Built with HTML5, vanilla JavaScript &amp; Tailwind CSS.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================== APP SCRIPT ============================== -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ---------- Theme ---------- */
+    const root = document.documentElement;
+    const stored = localStorage.getItem('pg-theme');
+    if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      root.classList.add('dark');
+    }
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      root.classList.toggle('dark');
+      localStorage.setItem('pg-theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    /* ---------- Mobile menu ---------- */
+    const menuBtn = document.getElementById('menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    menuBtn.addEventListener('click', () => {
+      const open = menu.classList.toggle('hidden') === false;
+      menuBtn.setAttribute('aria-expanded', String(open));
+    });
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.add('hidden')));
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    /* ---------- Reveal on scroll ---------- */
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    /* ---------- Data: red flags ---------- */
+    const redFlags = [
+      ['Mismatched sender', 'The display name says "PayPal Support" but the address is a random domain.'],
+      ['Lookalike domain', 'paypaI.com (capital i), pаypal.com (Cyrillic а), or paypal-secure.tk.'],
+      ['Urgent threats', '"Account suspended", "verify within 24 hours", "final notice".'],
+      ['Generic greeting', '"Dear customer" instead of your name (for services that know it).'],
+      ['Link ≠ text', 'The visible link says one site; hovering reveals another destination.'],
+      ['Requests for secrets', 'Asking for your password, full card number + CVV, OTP, or recovery phrase.'],
+      ['Unexpected attachments', 'Invoices or "documents" you didn\'t request, especially .exe/.zip/.html.'],
+      ['Off-brand domain', 'A page that looks like Brand X but lives on an unrelated domain.'],
+      ['No HTTPS on a login', 'A password form served over plain http://.'],
+      ['Too-good offers', 'Refunds, prizes, or gift-card requests out of nowhere.'],
+    ];
+    const fl = document.getElementById('redflags-left');
+    const fr = document.getElementById('redflags-right');
+    redFlags.forEach((f, i) => {
+      const d = document.createElement('div');
+      d.className = 'flex gap-3';
+      d.innerHTML = '<span class="mt-0.5 text-danger">🚩</span><div><p class="font-semibold">' + f[0] + '</p><p class="text-sm text-slate-600 dark:text-slate-300">' + f[1] + '</p></div>';
+      (i % 2 ? fr : fl).appendChild(d);
+    });
+
+    /* ---------- Data: best practices ---------- */
+    const practices = [
+      ['Type addresses or use bookmarks', 'Never log in via a link from an email or message — navigate to the site yourself.'],
+      ['Use a password manager', 'It won\'t autofill on a lookalike domain — a built-in phishing detector, and it makes unique passwords effortless.'],
+      ['Turn on MFA everywhere', 'Phishing-resistant factors (passkeys, hardware keys) are best; even app-based MFA blocks most attacks.'],
+      ['Slow down on urgency', 'Treat pressure and deadlines as a signal to verify, not to rush.'],
+      ['Check the domain, not the logo', 'Read the address right-to-left: the real site is just left of the final dot-suffix.'],
+      ['Verify out-of-band', 'For money or credentials, confirm via a known phone number or the official app — not the message.'],
+      ['Keep software updated', 'Browsers and OS patches close the holes that turn a click into a compromise.'],
+      ['Never reuse passwords', 'One breached or phished site shouldn\'t unlock the rest of your life.'],
+      ['Hover before you click', 'Preview link destinations; on mobile, long-press to reveal the URL.'],
+      ['Report suspicious messages', 'Reporting protects others and trains your organisation\'s filters.'],
+    ];
+    const pg = document.getElementById('practices-grid');
+    practices.forEach(p => {
+      const d = document.createElement('div');
+      d.className = 'flex gap-3';
+      d.innerHTML = '<span class="mt-0.5 text-safe text-lg">✓</span><div><p class="font-semibold">' + p[0] + '</p><p class="text-sm text-slate-600 dark:text-slate-300">' + p[1] + '</p></div>';
+      pg.appendChild(d);
+    });
+
+    /* ---------- Data: features ---------- */
+    const features = [
+      ['🔬', 'Real-time URL analysis', 'Homoglyph/punycode, typosquatting, brand-in-subdomain, IP hosts, the "@" trick, suspicious TLDs and shorteners.'],
+      ['🧱', 'Form-submission interception', 'Captures risky submissions before any network request fires — including JS-driven form.submit, fetch and XHR.'],
+      ['🎯', 'Destination cross-checks', 'Flags when a form posts to a different origin, downgrades HTTPS→HTTP, or targets a raw IP or shortener.'],
+      ['🌐', 'Threat intelligence', 'Google Safe Browsing hash-prefix cache plus opt-in PhishTank, OpenPhish, URLhaus and enterprise feeds — matched on-device.'],
+      ['📨', 'Webmail inspection', 'Gmail, Outlook, Yahoo and generic adapters catch spoofed senders, reply-to tricks and deceptive links.'],
+      ['🕰️', 'Domain-age signal', 'Cached RDAP lookups flag freshly registered domains — a hallmark of phishing kits.'],
+      ['🔑', 'Password-reuse guard', 'Warns if you reuse a password on a new site — stored as salted hashes, never plaintext.'],
+      ['📒', 'Tamper-evident audit log', 'Hash-chained IndexedDB log survives restarts; any edit is detectable and the chain is verifiable.'],
+      ['🎓', 'Just-in-time education', '"How does this scam work?" cards explain the exact technique at the moment of risk.'],
+    ];
+    const fg = document.getElementById('features-grid');
+    features.forEach(f => {
+      const d = document.createElement('div');
+      d.className = 'reveal rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6';
+      d.innerHTML = '<div class="text-3xl">' + f[0] + '</div><h3 class="mt-3 font-bold">' + f[1] + '</h3><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">' + f[2] + '</p>';
+      fg.appendChild(d);
+      io.observe(d);
+    });
+
+    /* ---------- Data: glossary ---------- */
+    const glossary = [
+      ['Homoglyph / IDN attack', 'Using characters that look identical to Latin letters (e.g. Cyrillic "а") to forge a domain name.'],
+      ['Typosquatting', 'Registering a domain one keystroke away from a real brand (paypa1.com, amaz0n.com).'],
+      ['Punycode', 'The ASCII encoding (xn--…) browsers use for internationalised domain names — often abused to disguise spoofs.'],
+      ['Credential harvesting', 'A fake login page that captures the username and password you type.'],
+      ['MFA / 2FA', 'Multi-factor authentication — a second proof of identity beyond your password.'],
+      ['Passkey', 'A phishing-resistant login bound to the real site, so it can\'t be used on a fake one.'],
+      ['BEC', 'Business Email Compromise — impersonating an executive or vendor to authorise fraudulent payments.'],
+      ['Threat intelligence', 'Feeds of known-malicious URLs/domains used to block confirmed phishing.'],
+      ['Declarative Net Request', 'The Manifest V3 API PhishGuard uses to block navigations to blocklisted domains before they load.'],
+    ];
+    const gl = document.getElementById('glossary');
+    glossary.forEach(g => {
+      const d = document.createElement('details');
+      d.className = 'py-4 group';
+      d.innerHTML = '<summary class="flex items-center justify-between font-semibold"><span>' + g[0] + '</span><span class="text-brand-500 group-open:rotate-45 transition-transform text-xl leading-none">+</span></summary><p class="mt-2 text-sm text-slate-600 dark:text-slate-300">' + g[1] + '</p>';
+      gl.appendChild(d);
+    });
+
+    /* ======================================================================
+       URL INSPECTOR — simplified, on-device heuristics (teaching demo)
+       ====================================================================== */
+    const BRANDS = ['paypal','google','gmail','microsoft','outlook','apple','icloud','amazon','facebook','instagram','netflix','linkedin','whatsapp','dropbox','coinbase','binance','chase','wellsfargo','bankofamerica','hsbc','barclays','santander','steam','discord','ebay','dhl','fedex','ups','usps','spotify','adobe','docusign','github'];
+    const CONFUSABLE = {'а':'a','е':'e','о':'o','р':'p','с':'c','х':'x','у':'y','і':'i','ѕ':'s','ν':'v','ο':'o','ρ':'p','α':'a','ӏ':'l','ⅼ':'l','ℓ':'l','0':'o','1':'l'};
+    const SUS_TLD = ['tk','ml','ga','cf','gq','top','xyz','zip','mov','click','link','gdn','loan','work','support','icu','cyou','sbs','rest','fit'];
+    const SHORTENERS = ['bit.ly','tinyurl.com','t.co','goo.gl','ow.ly','is.gd','rebrand.ly','cutt.ly','rb.gy','t.ly'];
+
+    function skeleton(s){ let o=''; for (const ch of s.toLowerCase()) o += (CONFUSABLE[ch] || ch); return o; }
+    function hasConfusable(s){ for (const ch of s) if (CONFUSABLE[ch] !== undefined && ch.charCodeAt(0) > 127) return true; return false; }
+    function lev(a,b){ const m=a.length,n=b.length; if(!m)return n; if(!n)return m; let p=[...Array(n+1).keys()],c=new Array(n+1); for(let i=1;i<=m;i++){c[0]=i; for(let j=1;j<=n;j++){c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));} [p,c]=[c,p];} return p[n]; }
+    function regDomain(host){ const l=host.split('.'); return l.length<=2 ? host : l.slice(-2).join('.'); }
+
+    function analyze(raw){
+      const signals = [];
+      let url;
+      try { url = new URL(raw.includes('://') ? raw : 'https://' + raw); }
+      catch { return { error: 'That doesn\'t look like a valid URL.' }; }
+
+      const host = url.hostname.toLowerCase();
+      const reg = regDomain(host);
+      const sld = reg.split('.')[0] || '';
+      const tld = host.split('.').pop() || '';
+      const sub = host.slice(0, Math.max(0, host.length - reg.length - 1));
+
+      if (url.protocol === 'http:') signals.push(['warn','Not encrypted (HTTP)','The connection isn\'t secure; anything typed can be read in transit.']);
+      if (url.username || url.password) signals.push(['danger','The "@" trick','Text before "@" is ignored — the browser really goes to ' + host + '.']);
+
+      const isIp = /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || (host.includes(':') && /^[0-9a-f:]+$/i.test(host));
+      if (isIp) signals.push(['danger','Raw IP address host','Legitimate services use names, not bare IP addresses.']);
+
+      const idn = host.startsWith('xn--') || host.includes('.xn--');
+      if (idn) signals.push(['warn','Punycode / IDN domain','Uses internationalised characters that can imitate real names.']);
+      const confusable = hasConfusable(host);
+
+      // Brand impersonation: scan every host label (hyphen-split, skeleton-
+      // normalized so paypa1/paypaI/pаypal all become "paypal") for a brand
+      // name — exact or a single edit away. Skip when the registrable domain
+      // IS the brand (e.g. accounts.google.com is legitimately Google).
+      if (!isIp && !BRANDS.includes(sld)) {
+        const tokens = skeleton(host).split(/[.\-]/).filter(Boolean);
+        let hit = null, fuzzy = false;
+        outer:
+        for (const t of tokens) {
+          for (const b of BRANDS) {
+            if (b.length >= 4 && t === b) { hit = b; break outer; }
+            if (b.length >= 5 && lev(t, b) === 1) { hit = b; fuzzy = true; break outer; }
+          }
+        }
+        if (hit) {
+          const inSub = skeleton(sub).split(/[.\-]/).includes(hit);
+          const title = confusable ? 'Lookalike of ' + hit + ' (confusable characters)'
+            : fuzzy ? 'Lookalike / typosquat of ' + hit
+            : inSub ? 'Brand "' + hit + '" hidden in the address'
+            : 'Brand "' + hit + '" on an unrelated domain';
+          signals.push(['danger', title, 'The address poses as ' + hit + ', but the real site is "' + reg + '", which is NOT ' + hit + '.']);
+        } else if (confusable) {
+          signals.push(['danger','Lookalike characters','Mixes alphabets / confusable characters to disguise the real name.']);
+        }
+      }
+
+      if (sub.split('.').filter(Boolean).length >= 3) signals.push(['warn','Deep subdomain nesting','Many subdomains push the real domain out of view.']);
+      if (SUS_TLD.includes(tld)) signals.push(['warn','High-abuse domain ending','".' + tld + '" is disproportionately used for abuse.']);
+      if (SHORTENERS.includes(reg) || SHORTENERS.includes(host)) signals.push(['warn','Link shortener','The real destination is hidden behind a short link.']);
+
+      let score = 0;
+      for (const s of signals) score += (s[0] === 'danger' ? 45 : 12);
+      let verdict = 'safe';
+      if (score >= 55) verdict = 'high';
+      else if (score >= 25) verdict = 'suspicious';
+      else if (signals.length) verdict = 'low';
+
+      return { host, reg, signals, verdict, score };
+    }
+
+    const VERDICTS = {
+      safe:       { label:'Looks clean', cls:'bg-safe',  note:'No obvious phishing signals in this simplified check. Stay alert — always confirm the domain.' },
+      low:        { label:'Minor flags', cls:'bg-warn text-slate-900', note:'A couple of low-weight signals. Worth a second look.' },
+      suspicious: { label:'Suspicious', cls:'bg-warn text-slate-900', note:'Multiple warning signs. Don\'t enter credentials here without verifying.' },
+      high:       { label:'High risk', cls:'bg-danger', note:'Strong phishing indicators. Do not log in or submit anything.' },
+    };
+
+    function render(res){
+      const box = document.getElementById('inspect-result');
+      if (res.error) { box.innerHTML = '<div class="rounded-xl bg-danger/20 ring-1 ring-danger/40 px-4 py-3 text-sm">' + res.error + '</div>'; return; }
+      const v = VERDICTS[res.verdict];
+      let html = '<div class="flex items-center gap-3"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold text-white ' + v.cls + '">' + v.label + '</span>';
+      html += '<span class="font-mono text-sm text-slate-300 break-all">' + res.host + '</span></div>';
+      html += '<p class="mt-2 text-sm text-slate-300">' + v.note + '</p>';
+      if (res.signals.length) {
+        html += '<ul class="mt-4 space-y-2">';
+        for (const s of res.signals) {
+          const dot = s[0] === 'danger' ? 'text-danger' : 'text-warn';
+          html += '<li class="flex gap-3 rounded-lg bg-slate-900/70 ring-1 ring-slate-700 px-3 py-2"><span class="' + dot + ' mt-0.5">●</span><div><p class="text-sm font-semibold">' + s[1] + '</p><p class="text-xs text-slate-400">' + s[2] + '</p></div></li>';
+        }
+        html += '</ul>';
+      } else {
+        html += '<p class="mt-4 text-sm text-slate-400">No heuristic flags triggered.</p>';
+      }
+      box.innerHTML = html;
+    }
+
+    const input = document.getElementById('url-input');
+    const go = () => { const v = input.value.trim(); if (v) render(analyze(v)); };
+    document.getElementById('inspect-btn').addEventListener('click', go);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+
+    const samples = ['https://paypaI.com.secure-login.tk/verify','http://192.168.10.5/account','https://www.paypal.com/signin','https://amaz0n-account.xyz/update','https://bit.ly/3xR4nd'];
+    const sbox = document.getElementById('samples');
+    samples.forEach(s => {
+      const b = document.createElement('button');
+      b.className = 'px-2.5 py-1 rounded-md bg-slate-700/60 hover:bg-slate-700 font-mono text-slate-200';
+      b.textContent = s.length > 38 ? s.slice(0, 38) + '…' : s;
+      b.title = s;
+      b.addEventListener('click', () => { input.value = s; go(); input.scrollIntoView({block:'nearest'}); });
+      sbox.appendChild(b);
+    });
+    // Seed with the example
+    input.value = samples[0]; render(analyze(samples[0]));
+
+    /* ======================================================================
+       QUIZ
+       ====================================================================== */
+    const QUIZ = [
+      {
+        q: 'You get an email "Your account is locked — verify now" with a button. What\'s safest?',
+        a: ['Click the button and log in quickly', 'Open a new tab and type the site\'s address yourself', 'Reply asking if it\'s real', 'Forward it to a friend'],
+        correct: 1,
+        why: 'Never trust the link in an unexpected message. Navigate to the real site independently — by bookmark or typed address.'
+      },
+      {
+        q: 'Which domain is the real PayPal?',
+        a: ['paypal-secure-login.com', 'paypaI.com', 'www.paypal.com', 'paypal.account-verify.tk'],
+        correct: 2,
+        why: 'The real domain sits just left of the final dot-suffix. The others add extra words, use a capital "I", or live on an unrelated domain.'
+      },
+      {
+        q: 'A login page asks for your password AND your one-time code on the same form, on a site you reached from a text message. This is…',
+        a: ['Normal extra security', 'A classic real-time phishing pattern', 'Fine if it has a padlock', 'Only risky on public Wi-Fi'],
+        correct: 1,
+        why: 'Harvesting your password and OTP together lets an attacker log in immediately. The padlock only means the connection is encrypted — not that the site is honest.'
+      },
+      {
+        q: 'Best defence if a phishing site does capture one of your passwords?',
+        a: ['Hope they don\'t use it', 'A unique password per site + MFA', 'Change it next month', 'Use a shorter password'],
+        correct: 1,
+        why: 'Unique passwords contain the damage to one account, and MFA (ideally passkeys/hardware keys) blocks the stolen password from being used.'
+      },
+      {
+        q: 'The link text says "https://bank.com" but hovering shows "http://bank.secure-pay.ru". You should…',
+        a: ['Click — the text says bank.com', 'Trust it; banks use many domains', 'Not click — the real destination is different', 'Click but don\'t enter a password'],
+        correct: 2,
+        why: 'Link text is just text and can say anything. The hover/real destination is what matters — here it points to an unrelated domain over plain HTTP.'
+      },
+    ];
+
+    const quizRoot = document.getElementById('quiz-root');
+    let qIndex = 0, qScore = 0, answered = false;
+
+    function renderQuiz(){
+      const item = QUIZ[qIndex];
+      let html = '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">';
+      html += '<div class="flex items-center justify-between text-sm text-slate-500"><span>Question ' + (qIndex+1) + ' of ' + QUIZ.length + '</span><span>Score: ' + qScore + '</span></div>';
+      html += '<div class="mt-2 h-1.5 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div class="h-full bg-brand-500" style="width:' + ((qIndex)/QUIZ.length*100) + '%"></div></div>';
+      html += '<h3 class="mt-4 font-bold text-lg">' + item.q + '</h3>';
+      html += '<div class="mt-4 space-y-2" id="answers">';
+      item.a.forEach((ans, i) => {
+        html += '<button data-i="' + i + '" class="ans w-full text-left px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-brand-400 hover:bg-brand-50 dark:hover:bg-slate-800 transition">' + ans + '</button>';
+      });
+      html += '</div><div id="explain" class="mt-4"></div></div>';
+      quizRoot.innerHTML = html;
+      answered = false;
+      quizRoot.querySelectorAll('.ans').forEach(btn => btn.addEventListener('click', () => choose(parseInt(btn.dataset.i, 10))));
+    }
+
+    function choose(i){
+      if (answered) return;
+      answered = true;
+      const item = QUIZ[qIndex];
+      const btns = quizRoot.querySelectorAll('.ans');
+      btns.forEach((b, idx) => {
+        b.disabled = true;
+        if (idx === item.correct) b.className += ' !border-safe !bg-safe/10';
+        else if (idx === i) b.className += ' !border-danger !bg-danger/10';
+        b.classList.add('cursor-default');
+      });
+      if (i === item.correct) qScore++;
+      const correct = i === item.correct;
+      const explain = document.getElementById('explain');
+      explain.innerHTML =
+        '<div class="rounded-xl ' + (correct ? 'bg-safe/10 ring-1 ring-safe/30' : 'bg-danger/10 ring-1 ring-danger/30') + ' p-4">' +
+        '<p class="font-semibold">' + (correct ? '✓ Correct' : '✗ Not quite') + '</p>' +
+        '<p class="mt-1 text-sm text-slate-600 dark:text-slate-300">' + item.why + '</p>' +
+        '<button id="next-q" class="mt-3 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold">' +
+        (qIndex < QUIZ.length - 1 ? 'Next question →' : 'See results') + '</button></div>';
+      document.getElementById('next-q').addEventListener('click', () => {
+        if (qIndex < QUIZ.length - 1) { qIndex++; renderQuiz(); }
+        else renderResults();
+      });
+    }
+
+    function renderResults(){
+      const pct = Math.round(qScore / QUIZ.length * 100);
+      let verdict = pct === 100 ? 'Phishing-proof! 🛡️' : pct >= 60 ? 'Solid instincts 👍' : 'Worth a refresher 📚';
+      quizRoot.innerHTML =
+        '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center">' +
+        '<div class="text-5xl font-extrabold text-brand-500">' + qScore + '/' + QUIZ.length + '</div>' +
+        '<p class="mt-2 text-xl font-bold">' + verdict + '</p>' +
+        '<p class="mt-2 text-slate-600 dark:text-slate-300">Review the <a href="#practices" class="text-brand-500 underline">best practices</a> and try the <a href="#inspector" class="text-brand-500 underline">URL Inspector</a> to sharpen up.</p>' +
+        '<button id="retry" class="mt-5 px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800">Try again</button></div>';
+      document.getElementById('retry').addEventListener('click', () => { qIndex = 0; qScore = 0; renderQuiz(); });
+    }
+
+    renderQuiz();
+  })();
+  </script>
+</body>
+</html>

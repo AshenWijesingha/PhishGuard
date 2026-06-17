@@ -3,6 +3,18 @@
 All notable changes to PhishGuard are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/), versioning: SemVer.
 
+## [Unreleased]
+
+### Added
+- **Learning site (`index.html`):** a single-file, HTML5 + vanilla JS + Tailwind (CDN) landing and
+  education page. Covers what phishing is, attack types, red flags, best practices, the extension's
+  features and install steps, and a glossary. Includes two interactive, fully on-device widgets — a
+  **URL Inspector** that mirrors the extension's heuristics (homoglyph/typosquat/IP/userinfo/shortener
+  detection) and a five-question **Spot-the-Phish quiz**. Dark mode, reduced-motion, and mobile menu
+  supported.
+- **GitHub Pages deployment** (`.github/workflows/pages.yml`): auto-deploys the learning site on every
+  push to `main`, self-enabling Pages via `actions/configure-pages`.
+
 ## [1.2.0] — 2026-06-12
 
 ### Added
