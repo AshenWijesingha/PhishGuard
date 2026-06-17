@@ -27,6 +27,12 @@ export interface FormSubmitInfo {
   sensitiveFields: string[];
   /** How the submit was initiated: native | js-submit | fetch | xhr. */
   via: string;
+  /**
+   * SHA-256 hex digest of the password being submitted (never the
+   * plaintext), for the password-reuse guard. Only set when the guard is
+   * enabled and a password field is present.
+   */
+  pwdDigest?: string;
 }
 
 export type Request =
@@ -44,7 +50,10 @@ export type Request =
   | { kind: 'removeFromBlocklist'; domain: string }
   | { kind: 'getSettings' }
   | { kind: 'updateSettings'; settings: Partial<Settings> }
-  | { kind: 'reportPhishing'; url: string; signals: Signal[] };
+  | { kind: 'reportPhishing'; url: string; signals: Signal[] }
+  | { kind: 'recordPasswordUse'; pwdDigest: string; origin: string }
+  /** Anti-fatigue gate: may a non-blocking banner be shown for this origin right now? */
+  | { kind: 'shouldShowBanner'; origin: string };
 
 export interface AuditFilter {
   text?: string;
@@ -75,6 +84,9 @@ export type Response =
   | { kind: 'lists'; allowlist: string[]; blocklist: string[] }
   | { kind: 'settings'; settings: Settings }
   | { kind: 'ok' }
+  /** Result of a list add — movedFromOtherList = it was relocated, not duplicated. */
+  | { kind: 'listAdded'; movedFromOtherList: boolean }
+  | { kind: 'bannerDecision'; show: boolean }
   | { kind: 'error'; message: string };
 
 export function sendRequest<T extends Response>(req: Request): Promise<T> {

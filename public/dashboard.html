@@ -13,12 +13,29 @@
       <button role="tab" data-tab="log" aria-selected="true">Audit log</button>
       <button role="tab" data-tab="lists" aria-selected="false">Allow / block lists</button>
       <button role="tab" data-tab="settings" aria-selected="false">Settings</button>
+      <button role="tab" data-tab="learn" aria-selected="false">Learn</button>
     </nav>
   </header>
 
   <main>
     <section id="tab-log" role="tabpanel">
       <div class="stats" id="stats" aria-label="Statistics"></div>
+      <div class="charts">
+        <div class="chart-card wide">
+          <h3>Activity — last 14 days</h3>
+          <div id="chart-activity" role="img" aria-label="Daily security events, last 14 days"></div>
+          <div class="legend" id="legend-activity"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Verdict breakdown</h3>
+          <div id="chart-verdicts" role="img" aria-label="Share of events by verdict"></div>
+          <div class="legend" id="legend-verdicts"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Top flagged domains</h3>
+          <div id="chart-domains" aria-label="Most frequently flagged domains"></div>
+        </div>
+      </div>
       <div class="toolbar">
         <input id="log-search" type="search" placeholder="Search domain, URL, or signal…" aria-label="Search audit log" />
         <select id="log-type" aria-label="Filter by event type">
@@ -45,6 +62,8 @@
     </section>
 
     <section id="tab-lists" role="tabpanel" hidden>
+      <p class="hint">A domain can only be on one list: adding it to the allowlist removes it from the blocklist, and vice versa.</p>
+      <div id="list-notice" role="status"></div>
       <div class="lists-grid">
         <div>
           <h2>Allowlist (trusted sites)</h2>
@@ -67,6 +86,24 @@
       <label>Google Safe Browsing API key
         <input type="password" id="gsb-key" autocomplete="off" placeholder="Optional — enables the Safe Browsing feed" />
       </label>
+      <p class="hint">URL-list feeds are downloaded periodically and matched entirely on-device. All are off by default.</p>
+      <label class="check"><input type="checkbox" id="feed-phishtank" /> PhishTank feed</label>
+      <label>PhishTank app key (optional)
+        <input type="password" id="phishtank-key" autocomplete="off" />
+      </label>
+      <label class="check"><input type="checkbox" id="feed-openphish" /> OpenPhish feed</label>
+      <label class="check"><input type="checkbox" id="feed-urlhaus" /> URLhaus feed (malware URLs)</label>
+      <label class="check"><input type="checkbox" id="feed-custom" /> Enterprise feed (MISP / custom REST URL list)</label>
+      <label>Enterprise feed URL
+        <input type="text" id="custom-url" placeholder="https://soc.example.com/blocklist.txt" />
+      </label>
+      <label>Enterprise feed API key (sent as Bearer token)
+        <input type="password" id="custom-key" autocomplete="off" />
+      </label>
+      <h2>Heuristics</h2>
+      <label class="check"><input type="checkbox" id="rdap-age" /> Domain-age lookups (cached RDAP, only for already-suspicious pages)</label>
+      <label class="check"><input type="checkbox" id="pwd-guard" /> Password-reuse warnings (salted hashes only, never plaintext)</label>
+      <label class="check"><input type="checkbox" id="confirm-suspicious" /> Ask before submitting forms to Suspicious destinations, not just High Risk (recommended)</label>
       <h2>Privacy</h2>
       <label class="check"><input type="checkbox" id="privacy-hash" /> Store only hashed domains in the audit log</label>
       <label class="check"><input type="checkbox" id="email-inspection" /> Inspect webmail messages (Gmail / Outlook)</label>
@@ -74,6 +111,12 @@
       <label>Audit-log retention (days, 0 = forever) <input type="number" id="retention" min="0" /></label>
       <button id="btn-save-settings" type="button" class="primary">Save settings</button>
       <div id="settings-saved" role="status"></div>
+    </section>
+
+    <section id="tab-learn" role="tabpanel" hidden>
+      <h2>Phishing techniques library</h2>
+      <p>Every technique PhishGuard detects, explained. These same cards appear at the moment of risk when a submission is blocked.</p>
+      <div id="learn-cards"></div>
     </section>
   </main>
   <script src="dashboard.js"></script>

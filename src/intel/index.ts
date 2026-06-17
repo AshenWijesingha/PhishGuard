@@ -2,13 +2,22 @@
  * Threat-intel orchestration: runs every enabled adapter against a URL,
  * with a short-lived per-URL verdict cache so repeated checks of the same
  * page (navigation + form submit + popup) cost one lookup.
+ *
+ * Adapters (in priority order): Google Safe Browsing (hash-prefix,
+ * k-anonymity), then the local URL-list feeds — PhishTank, OpenPhish,
+ * URLhaus, and the generic enterprise feed (all matched offline).
  */
 import type { TiAdapter, TiVerdict } from './adapter';
 import { SafeBrowsingAdapter } from './safebrowsing';
+import { FEED_SPECS, UrlFeedAdapter } from './feeds';
 import { getSettings } from '../storage/settings';
 
 const adapters: TiAdapter[] = [
   new SafeBrowsingAdapter(async () => (await getSettings()).safeBrowsingApiKey),
+  new UrlFeedAdapter(FEED_SPECS.phishtank!, async () => (await getSettings()).feeds.phishtank),
+  new UrlFeedAdapter(FEED_SPECS.openphish!, async () => (await getSettings()).feeds.openphish),
+  new UrlFeedAdapter(FEED_SPECS.urlhaus!, async () => (await getSettings()).feeds.urlhaus),
+  new UrlFeedAdapter(FEED_SPECS.custom!, async () => (await getSettings()).feeds.custom),
 ];
 
 const verdictCache = new Map<string, { verdict: TiVerdict | null; expires: number }>();
@@ -42,3 +51,5 @@ export async function refreshThreatIntel(): Promise<void> {
     }
   }
 }
+
+export { getDomainAgeDays } from './rdap';

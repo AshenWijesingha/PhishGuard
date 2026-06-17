@@ -1,6 +1,6 @@
 {
   "name": "phishguard",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Privacy-respecting anti-phishing browser extension (Manifest V3). All analysis on-device.",
   "private": true,
   "type": "module",

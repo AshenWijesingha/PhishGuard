@@ -8,6 +8,8 @@ import { sendRequest, type EmailSignals, type Response } from '../../types/messa
 import { showBanner } from '../ui';
 import { gmailAdapter } from './gmail';
 import { outlookAdapter } from './outlook';
+import { yahooAdapter } from './yahoo';
+import { genericWebmailAdapter } from './generic';
 
 export interface EmailAdapter {
   matches(hostname: string): boolean;
@@ -16,15 +18,19 @@ export interface EmailAdapter {
   extract(container: HTMLElement): EmailSignals | null;
 }
 
-const adapters: EmailAdapter[] = [gmailAdapter, outlookAdapter];
+// Order matters: provider-specific adapters first; the generic adapter
+// self-gates on recognizable Roundcube/Zimbra markup.
+const adapters: EmailAdapter[] = [gmailAdapter, outlookAdapter, yahooAdapter, genericWebmailAdapter];
 
 const scanned = new WeakSet<HTMLElement>();
 
 export function initEmailInspector(): void {
-  const adapter = adapters.find((a) => a.matches(location.hostname));
-  if (!adapter) return;
+  // Adapter selection is deferred to DOM-ready: the generic adapter sniffs
+  // page markup, which doesn't exist at document_start.
+  let adapter: EmailAdapter | undefined;
 
   const scan = () => {
+    if (!adapter) return;
     for (const container of document.querySelectorAll<HTMLElement>(adapter.messageSelector)) {
       if (scanned.has(container)) continue;
       scanned.add(container);
@@ -43,6 +49,8 @@ export function initEmailInspector(): void {
     }, 500);
   });
   const start = () => {
+    adapter = adapters.find((a) => a.matches(location.hostname));
+    if (!adapter) return;
     scan();
     observer.observe(document.body, { childList: true, subtree: true });
   };
