@@ -5,6 +5,20 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versioning: SemVer.
 
 ## [Unreleased]
 
+### Changed
+- **Learning site UI/UX overhaul.** Polished, branded redesign of `index.html` with a richer,
+  more cohesive visual language and a full set of learning-platform features: sticky nav with
+  scrollspy active-section highlighting and a top scroll-progress bar; animated stat counters;
+  reveal-on-scroll; back-to-top; toasts; a saved **learning-path tracker** (5 modules, progress
+  ring, localStorage); an interactive **"dissect a phishing email"** widget; an enhanced **URL
+  Inspector** with a risk gauge and "what PhishGuard would do" guidance; an upgraded **quiz**
+  with a best-score badge, persistence, and confetti on a perfect run; a **searchable glossary**;
+  copy-to-clipboard install commands; a printable **cheat sheet**; keyboard theme toggle (D);
+  and the user-supplied logo wired into the nav, footer, favicon, and social preview.
+- Fixed a duplicate `id="glossary"` (section vs. results container) that would have let the
+  glossary search wipe the whole section, and restored the Best Practices grid + cheat-sheet
+  data that an earlier draft had dropped.
+
 ### Added
 - **Learning site (`index.html`):** a single-file, HTML5 + vanilla JS + Tailwind (CDN) landing and
   education page. Covers what phishing is, attack types, red flags, best practices, the extension's
